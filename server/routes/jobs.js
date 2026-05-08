@@ -35,4 +35,15 @@ router.post('/', async (req, res) => {
     }
 });
 
+// Delete a job listing
+router.delete('/:id', async (req, res) => {
+    try {
+        const job = await Job.findByIdAndDelete(req.params.id);
+        if (!job) return res.status(404).json({ message: 'Job not found' });
+        res.json({ message: 'Job deleted successfully' });
+    } catch (err) {
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
 module.exports = router;

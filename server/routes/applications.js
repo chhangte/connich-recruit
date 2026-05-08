@@ -5,10 +5,10 @@ const router = express.Router();
 // Apply for a job
 router.post('/', async (req, res) => {
     try {
-        const { jobId, applicantId, details } = req.body;
+        const { job, applicant, details } = req.body;
         const application = new Application({
-            job: jobId,
-            applicant: applicantId,
+            job,
+            applicant,
             details
         });
         await application.save();
@@ -22,7 +22,7 @@ router.post('/', async (req, res) => {
 router.get('/my/:userId', async (req, res) => {
     try {
         const applications = await Application.find({ applicant: req.params.userId })
-            .populate('job', 'title location department')
+            .populate('job', 'title location department salary')
             .sort({ appliedAt: -1 });
         res.json(applications);
     } catch (err) {

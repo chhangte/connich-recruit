@@ -1,29 +1,211 @@
 @import "tailwindcss";
 
+/* ─────────────────────────────────────────────
+   DESIGN TOKENS  (Corporate Light)
+────────────────────────────────────────────── */
+@theme {
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+
+  /* Backgrounds */
+  --color-canvas:    #ffffff;
+  --color-surface:   #ffffff;
+  --color-surface-2: #f8fafc;
+  --color-surface-3: #f1f5f9;
+
+  /* Borders */
+  --color-border:    #e2e8f0;
+  --color-border-2:  #cbd5e1;
+
+  /* Accent — confident indigo-blue */
+  --color-accent:       #2563eb;
+  --color-accent-hover: #1d4ed8;
+  --color-accent-light: #eff6ff;
+  --color-accent-muted: #bfdbfe;
+
+  /* Text */
+  --color-text:       #0f172a;
+  --color-text-2:     #334155;
+  --color-text-muted: #64748b;
+  --color-text-xmuted:#94a3b8;
+
+  /* States */
+  --color-success:       #16a34a;
+  --color-success-light: #dcfce7;
+  --color-warning:       #d97706;
+  --color-warning-light: #fef3c7;
+  --color-danger:        #dc2626;
+  --color-danger-light:  #fee2e2;
+}
+
+/* ─────────────────────────────────────────────
+   BASE
+────────────────────────────────────────────── */
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
+  font-family: "Inter", system-ui, sans-serif;
+  font-optical-sizing: auto;
+  line-height: 1.6;
   font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
+  color: #0f172a;
+  background-color: #ffffff;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
-body {
-  margin: 0;
-  display: flex;
-  place-content: center;
-  min-width: 320px;
-  min-height: 100vh;
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: #ffffff; }
+
+::selection { background: #bfdbfe; color: #1e3a8a; }
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #f1f5f9; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+@layer base {
+  body {
+    @apply bg-canvas text-text font-sans antialiased;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight text-text leading-tight;
+  }
+  a {
+    @apply text-accent hover:text-accent-hover transition-colors;
+  }
 }
 
-@theme {
-  --color-brand: #4f46e5;
-  --color-brand-hover: #4338ca;
+/* ─────────────────────────────────────────────
+   COMPONENT CLASSES
+   NOTE: Tailwind v4 — @apply may only reference
+   core utilities, NOT other custom classes.
+   Every class below is fully self-contained.
+────────────────────────────────────────────── */
+@layer components {
+
+  /* ── Buttons ─────────────────────────────── */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg
+           text-sm font-medium bg-accent text-white shadow-sm
+           hover:bg-accent-hover transition-all duration-150 cursor-pointer select-none;
+  }
+
+  .btn-primary-lg {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg
+           text-base font-semibold bg-accent text-white shadow-sm
+           hover:bg-accent-hover transition-all duration-150 cursor-pointer select-none;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg
+           text-sm font-medium bg-white text-text-2 border border-border
+           hover:bg-surface-2 hover:border-border-2
+           transition-all duration-150 cursor-pointer select-none;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg
+           text-sm font-medium text-text-muted
+           hover:bg-surface-2 hover:text-text
+           transition-all duration-150 cursor-pointer select-none;
+  }
+
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg
+           text-sm font-medium bg-danger text-white
+           hover:opacity-90 transition-all duration-150 cursor-pointer select-none;
+  }
+
+  /* ── Inputs ──────────────────────────────── */
+  .input {
+    @apply w-full px-3.5 py-2.5 rounded-lg text-sm text-text bg-white border border-border
+           placeholder:text-text-xmuted
+           focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent
+           transition-all duration-150;
+  }
+
+  .input-lg {
+    @apply w-full px-4 py-3 rounded-lg text-base text-text bg-white border border-border
+           placeholder:text-text-xmuted
+           focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent
+           transition-all duration-150;
+  }
+
+  .label {
+    @apply block text-sm font-medium text-text-2 mb-1.5;
+  }
+
+  /* ── Cards ───────────────────────────────── */
+  .card {
+    @apply bg-surface rounded-xl border border-border transition-all duration-200;
+  }
+
+  .card-hover {
+    @apply bg-surface rounded-xl border border-border transition-all duration-200
+           hover:border-border-2 hover:shadow-md hover:-translate-y-0.5;
+  }
+
+  /* ── Badges ──────────────────────────────── */
+  .badge {
+    @apply inline-flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full;
+  }
+
+  .badge-blue {
+    @apply inline-flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full
+           bg-accent-light text-accent;
+  }
+
+  .badge-green {
+    @apply inline-flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full
+           bg-success-light text-success;
+  }
+
+  .badge-yellow {
+    @apply inline-flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full
+           bg-warning-light text-warning;
+  }
+
+  .badge-red {
+    @apply inline-flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full
+           bg-danger-light text-danger;
+  }
+
+  .badge-gray {
+    @apply inline-flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full
+           bg-surface-3 text-text-muted;
+  }
+
+  /* ── Misc ────────────────────────────────── */
+  .section-label {
+    @apply text-xs font-semibold uppercase tracking-widest text-text-xmuted;
+  }
+
+  .divider {
+    @apply border-t border-border my-6;
+  }
 }
+
+/* ─────────────────────────────────────────────
+   ANIMATIONS
+────────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.animate-fade-up   { animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-fade-up-1 { animation: fadeUp 0.5s 0.05s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-fade-up-2 { animation: fadeUp 0.5s 0.10s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-fade-up-3 { animation: fadeUp 0.5s 0.15s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-fade-up-4 { animation: fadeUp 0.5s 0.20s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-fade-in   { animation: fadeIn 0.4s ease both; }
+
+/* ─────────────────────────────────────────────
+   UTILITIES
+────────────────────────────────────────────── */
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
