@@ -3,7 +3,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 
-dotenv.config();
+const path = require('path');
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -26,16 +27,16 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/careers-k
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/jobs', require('./routes/jobs'));
 app.use('/api/applications', require('./routes/applications'));
-app.use('/api/company', require('./routes/company'));
+app.use('/api/companies', require('./routes/company'));   // new slug-based company routes
 
 // Stats Route
 app.get('/api/stats', async (req, res) => {
     try {
         const Job = require('./models/Job');
         const User = require('./models/User');
+        const Company = require('./models/Company');
         const jobsCount = await Job.countDocuments({ status: 'OPEN' });
-        const companies = await Job.distinct('postedBy', { status: 'OPEN' });
-        const companiesCount = companies.length || 1;
+        const companiesCount = await Company.countDocuments({ isPublic: true });
         const candidatesCount = await User.countDocuments({ role: 'APPLICANT' });
         res.json({ jobsCount, companiesCount, candidatesCount });
     } catch (err) {

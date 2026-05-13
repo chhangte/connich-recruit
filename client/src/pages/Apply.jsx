@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import { CheckCircle2, Building2, Briefcase, Info, ChevronDown, Plus, Trash2 } from 'lucide-react';
 import axios from 'axios';
+import { useCompany } from '../context/CompanyContext';
 
 const API_BASE_URL = '/api';
 
@@ -48,6 +49,8 @@ const Section = ({ title, subtitle }) => (
 const Apply = ({ user }) => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const guestEmail = location.state?.guestEmail || '';
   const [job, setJob] = useState(null);
   const [jobLoading, setJobLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -58,7 +61,7 @@ const Apply = ({ user }) => {
   const [form, setForm] = useState({
     // Personal
     name: user?.name || '',
-    email: user?.email || '',
+    email: user?.email || guestEmail || '',
     phone: user?.profile?.phone || '',
     address: user?.profile?.address || '',
     houseNumber: '',
@@ -91,11 +94,9 @@ const Apply = ({ user }) => {
     experiences: user?.profile?.experiences || [{ jobTitle: '', description: '', fromMonth: '', fromYear: '', toMonth: '', toYear: '', referenceName: '', referencePhone: '' }],
   });
 
+  const { company: contextCompany } = useCompany();
+
   useEffect(() => {
-    if (!user) {
-      navigate(`/login?redirect=/apply/${id}`);
-      return;
-    }
     const fetchJob = async () => {
       try {
         const res = await axios.get(`${API_BASE_URL}/jobs/${id}`);
@@ -107,7 +108,11 @@ const Apply = ({ user }) => {
       }
     };
     fetchJob();
-  }, [id, user, navigate]);
+  }, [id]);
+
+  const company = contextCompany || job?.postedBy?.company;
+  const primaryColor = company?.brandPrimary || '#2563eb';
+  const accentColor = company?.brandAccent || '#1e3a5f';
 
   const set = (field) => (e) => setForm({ ...form, [field]: e.target.value });
 
@@ -162,7 +167,7 @@ const Apply = ({ user }) => {
       const combinedAddress = `${form.houseNumber}, ${form.area}, ${form.city}, ${displayState} - ${form.pin}`;
       await axios.post(`${API_BASE_URL}/applications`, {
         job: id,
-        applicant: user.id || user._id,
+        applicant: user?.id || user?._id || null, // null for guest
         details: {
           ...form,
           address: combinedAddress,
@@ -201,7 +206,11 @@ const Apply = ({ user }) => {
           We will review your application carefully and get back to you within 5–7 business days. Please note that submitted applications cannot be edited or revoked.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Link to="/dashboard" className="btn-primary no-underline justify-center">View my applications</Link>
+          {user ? (
+            <Link to="/dashboard" className="btn-primary no-underline justify-center" style={{ background: primaryColor }}>View my applications</Link>
+          ) : (
+            <div className="text-xs text-text-muted mt-2">An update will be sent to your email.</div>
+          )}
           <Link to="/" className="btn-outline no-underline justify-center">Browse more jobs</Link>
         </div>
       </div>
@@ -216,7 +225,14 @@ const Apply = ({ user }) => {
       {/* Breadcrumb */}
       <div className="border-b border-border bg-white">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-2 text-sm text-text-muted">
-          <button onClick={() => navigate(`/jobs/${id}`)} className="hover:text-text transition-colors flex items-center gap-1">
+          <button 
+            onClick={() => {
+              const slug = company?.slug || job?.companyId?.slug;
+              if (slug) navigate(`/${slug}/jobs/${id}`);
+              else navigate(`/jobs/${id}`);
+            }} 
+            className="hover:text-text transition-colors flex items-center gap-1"
+          >
             ← Back to role
           </button>
           {job && <><span>/</span><span className="text-text truncate">Apply — {job.title}</span></>}
@@ -226,7 +242,22 @@ const Apply = ({ user }) => {
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
         {/* Page header */}
         <div className="mb-6 animate-fade-up">
-          <h1 className="text-2xl font-bold text-text">Job Application Form</h1>
+          {company && (
+            <div className="flex items-center gap-4 mb-6 p-4 rounded-2xl bg-white border border-border shadow-sm">
+              <div className="w-16 h-16 rounded-xl border border-border bg-surface-2 flex items-center justify-center shrink-0 overflow-hidden">
+                {company.logoUrl ? (
+                  <img src={company.logoUrl} alt={company.name} className="w-full h-full object-contain p-1" />
+                ) : (
+                  <Building2 size={32} className="text-text-muted" />
+                )}
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-text">{company.name}</h1>
+                <p className="text-sm text-text-muted">{company.tagline || 'Career Portal'}</p>
+              </div>
+            </div>
+          )}
+          <h2 className="text-xl font-bold text-text">Job Application Form</h2>
           {job && (
             <div className="flex items-center gap-2 mt-2">
               <div className="w-7 h-7 rounded-md bg-accent-light flex items-center justify-center">
@@ -265,9 +296,15 @@ const Apply = ({ user }) => {
                 <input type="text" required value={form.name} onChange={set('name')}
                   placeholder="As per official documents" className={inputCls} />
               </Field>
-              <Field label="Email Address" hint="Autofilled from your account">
-                <input type="email" value={form.email} readOnly
-                  className={`${inputCls} bg-surface-2 text-text-muted cursor-not-allowed`} />
+              <Field label="Email Address" required={!user} hint={user ? "Autofilled from your account" : "Updates will be sent here"}>
+                <input
+                  type="email"
+                  required
+                  value={form.email}
+                  onChange={set('email')}
+                  readOnly={!!user}
+                  className={`${inputCls} ${user ? 'bg-surface-2 text-text-muted cursor-not-allowed' : ''}`}
+                />
               </Field>
               {hasField('phone') && (
                 <Field label="Phone Number" required>
@@ -656,14 +693,14 @@ const Apply = ({ user }) => {
               By clicking <strong>Submit Application</strong>, you confirm that you have read and agreed to the declaration above. Submitted applications cannot be modified or withdrawn.
             </p>
             <div className="flex gap-3 shrink-0">
-              <button type="button" onClick={() => navigate(`/jobs/${id}`)} className="btn-outline">
+              <button type="button" onClick={() => navigate(-1)} className="btn-outline">
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={submitting || !agreed}
-                title={!agreed ? 'Please accept the declaration to submit' : ''}
                 className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ background: agreed ? primaryColor : undefined }}
               >
                 {submitting ? 'Submitting…' : 'Submit Application'}
               </button>

@@ -9,7 +9,7 @@ const ApplicationSchema = new mongoose.Schema({
     applicant: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true
+        required: false
     },
     details: {
         // Personal

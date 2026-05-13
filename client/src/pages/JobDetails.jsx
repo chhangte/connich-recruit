@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, MapPin, Briefcase, Clock, CheckCircle2, Building2, ExternalLink, Calendar, AlertCircle } from 'lucide-react';
 import axios from 'axios';
+import ApplyGateModal from '../components/ApplyGateModal';
 
 const API_BASE_URL = '/api';
 
@@ -16,11 +17,14 @@ const DEPT_COLORS = {
 };
 const getDeptStyle = (dept) => DEPT_COLORS[dept] || DEPT_COLORS.Default;
 
+const NOW = Date.now();
+
 const JobDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
 
   // Read auth state directly so this page doesn't need a prop
   const user = (() => {
@@ -31,7 +35,7 @@ const JobDetails = () => {
     if (user) {
       navigate(`/apply/${id}`);
     } else {
-      navigate(`/signup?redirect=/apply/${id}`);
+      setIsApplyModalOpen(true);
     }
   };
 
@@ -67,13 +71,18 @@ const JobDetails = () => {
 
   const style = getDeptStyle(job.department);
   const timeAgo = job.createdAt
-    ? Math.floor((Date.now() - new Date(job.createdAt)) / 86400000) + ' days ago'
+    ? Math.floor((NOW - new Date(job.createdAt)) / 86400000) + ' days ago'
     : 'Recently';
 
   const company = job.postedBy?.company || {};
-  const companyName = company.name || 'Connich';
-  const logoUrl = company.logoUrl;
+  // Prefer the new Company document (companyId) over the legacy embedded company sub-doc
+  const companyDoc = job.companyId || null;
+  const companyName = companyDoc?.name || company.name || 'Connich';
+  const logoUrl = companyDoc?.logoUrl || company.logoUrl;
+  const companySlug = companyDoc?.slug || null;
+  const companyLink = companySlug ? `/${companySlug}` : `/company/${job.postedBy?._id}`;
   const initials = companyName.slice(0, 2).toUpperCase();
+  const primaryColor = companyDoc?.brandPrimary || '#2563eb';
 
   return (
     <div className="min-h-screen bg-white pt-14">
@@ -106,7 +115,7 @@ const JobDetails = () => {
                   )}
                 </div>
                 <div>
-                  <Link to={`/company/${job.postedBy?._id}`} className="text-sm text-text-muted flex items-center gap-1.5 hover:text-accent no-underline w-fit">
+                  <Link to={companyLink} className="text-sm text-text-muted flex items-center gap-1.5 hover:text-accent no-underline w-fit">
                     <Building2 size={13} /> {companyName}
                   </Link>
                   <span className="badge text-xs" style={{ background: style.bg, color: style.text }}>
@@ -183,7 +192,7 @@ const JobDetails = () => {
                     Visit Website <ExternalLink size={11} />
                   </a>
                 )}
-                <Link to={`/company/${job.postedBy?._id}`} className="text-xs text-accent hover:text-accent-hover flex items-center gap-1 no-underline font-medium">
+                <Link to={companyLink} className="text-xs text-accent hover:text-accent-hover flex items-center gap-1 no-underline font-medium">
                   View full profile <ArrowLeft size={11} className="rotate-180" />
                 </Link>
               </div>
@@ -272,17 +281,24 @@ const JobDetails = () => {
                 <button
                   onClick={handleApply}
                   className="btn-primary-lg w-full justify-center"
+                  style={{ background: primaryColor }}
                 >
                   Apply for this role
                 </button>
                 <p className="text-xs text-center text-text-xmuted mt-3">
-                  {user ? 'Takes less than 2 minutes' : 'Sign in to apply · Free account'}
+                  {user ? 'Takes less than 2 minutes' : 'No account needed to apply'}
                 </p>
               </div>
             </div>
           </div>
         </div>
       </div>
+      <ApplyGateModal 
+        isOpen={isApplyModalOpen} 
+        onClose={() => setIsApplyModalOpen(false)} 
+        jobId={id}
+        company={job?.companyId || job?.postedBy?.company}
+      />
     </div>
   );
 };

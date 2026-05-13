@@ -1,0 +1,263 @@
+import { useState, Component } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+
+/* ── Error Boundary: catches React runtime crashes ─────── */
+class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, info) {
+    console.error('App crashed:', error, info);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ padding: '2rem', fontFamily: 'monospace', color: '#dc2626' }}>
+          <h2>Something went wrong.</h2>
+          <pre style={{ fontSize: '0.8rem', whiteSpace: 'pre-wrap' }}>
+            {this.state.error?.message}
+            {this.state.error?.stack}
+          </pre>
+          <button onClick={() => window.location.reload()} style={{ marginTop: '1rem', padding: '0.5rem 1rem' }}>
+            Reload page
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+// Layout & shared components
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+import ScrollToTop from './components/ScrollToTop';
+import TenantLayout from './layouts/TenantLayout';
+
+// Platform pages
+import Home from './pages/Home';
+import JobDetails from './pages/JobDetails';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import Apply from './pages/Apply';
+import Dashboard from './pages/Dashboard';
+import RecruiterDashboard from './pages/RecruiterDashboard';
+import AdminDashboard from './pages/AdminDashboard';
+import RecruiterSignup from './pages/RecruiterSignup';
+import RecruiterLogin from './pages/RecruiterLogin';
+import BrowseJobs from './pages/BrowseJobs';
+import About from './pages/About';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
+import CookiePolicy from './pages/CookiePolicy';
+
+// Company (tenant) pages — rendered inside TenantLayout
+import CompanyHome from './pages/CompanyHome';
+import CompanyJobsPage from './pages/CompanyJobsPage';
+import CompanyJobDetail from './pages/CompanyJobDetail';
+
+/**
+ * Reserved path slugs that must NOT be treated as company slugs.
+ * Any new top-level platform route must be added here.
+ */
+const RESERVED_SLUGS = new Set([
+  'browse', 'login', 'signup', 'recruiter', 'dashboard', 'admin',
+  'about', 'privacy', 'terms', 'cookies', 'jobs', 'apply', 'company',
+]);
+
+/**
+ * PlatformLayout — wraps platform pages with the shared navbar + footer.
+ */
+const PlatformLayout = ({ user, logout, children }) => (
+  <div className="flex flex-col min-h-screen">
+    <Navbar user={user} logout={logout} />
+    <main className="flex-1">{children}</main>
+    <Footer />
+  </div>
+);
+
+function App() {
+  // Lazy initializer: reads localStorage synchronously on the very first render.
+  // This prevents the null→user flash that was redirecting users to /login on refresh.
+  const [user, setUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem('user');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+  };
+
+  return (
+    <ErrorBoundary>
+    <Router>
+      <ScrollToTop />
+      <Routes>
+
+        {/* ── Platform Routes (shared navbar + footer) ────── */}
+        <Route
+          path="/"
+          element={
+            <PlatformLayout user={user} logout={logout}>
+              <Home />
+            </PlatformLayout>
+          }
+        />
+        <Route
+          path="/jobs/:id"
+          element={
+            <PlatformLayout user={user} logout={logout}>
+              <JobDetails />
+            </PlatformLayout>
+          }
+        />
+        <Route
+          path="/browse"
+          element={
+            <PlatformLayout user={user} logout={logout}>
+              <BrowseJobs />
+            </PlatformLayout>
+          }
+        />
+        <Route
+          path="/about"
+          element={
+            <PlatformLayout user={user} logout={logout}>
+              <About />
+            </PlatformLayout>
+          }
+        />
+        <Route
+          path="/privacy"
+          element={
+            <PlatformLayout user={user} logout={logout}>
+              <PrivacyPolicy />
+            </PlatformLayout>
+          }
+        />
+        <Route
+          path="/terms"
+          element={
+            <PlatformLayout user={user} logout={logout}>
+              <TermsOfService />
+            </PlatformLayout>
+          }
+        />
+        <Route
+          path="/cookies"
+          element={
+            <PlatformLayout user={user} logout={logout}>
+              <CookiePolicy />
+            </PlatformLayout>
+          }
+        />
+
+        {/* ── Auth Pages (no shared layout — full-page) ───── */}
+        <Route path="/login" element={<Login setUser={setUser} />} />
+        <Route path="/signup" element={<Signup setUser={setUser} />} />
+        <Route path="/recruiter/signup" element={<RecruiterSignup setUser={setUser} />} />
+        <Route path="/recruiter/login" element={<RecruiterLogin setUser={setUser} />} />
+
+        {/* ── Protected Platform Routes ────────────────────── */}
+        <Route
+          path="/apply/:id"
+          element={
+            <PlatformLayout user={user} logout={logout}>
+              <Apply user={user} />
+            </PlatformLayout>
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            user?.role === 'APPLICANT'
+              ? (
+                <PlatformLayout user={user} logout={logout}>
+                  <Dashboard user={user} />
+                </PlatformLayout>
+              )
+              : <Navigate to="/login" />
+          }
+        />
+        <Route
+          path="/recruiter"
+          element={
+            user?.role === 'RECRUITER'
+              ? (
+                <PlatformLayout user={user} logout={logout}>
+                  <RecruiterDashboard user={user} setUser={setUser} />
+                </PlatformLayout>
+              )
+              : <Navigate to="/recruiter/login" />
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            user?.role === 'ADMIN'
+              ? (
+                <PlatformLayout user={user} logout={logout}>
+                  <AdminDashboard user={user} />
+                </PlatformLayout>
+              )
+              : <Navigate to="/login" />
+          }
+        />
+
+        {/* ── Company Tenant Routes (branded layout) ───────── */}
+        {/*
+          These catch-all slug routes render inside TenantLayout which:
+          - Fetches the company by slug
+          - Shows company-branded navbar + minimal footer
+          - Guards against invalid slugs with a fallback page
+          Reserved slugs are handled by the platform routes above,
+          so they'll never reach these slug routes.
+        */}
+        <Route
+          path="/:slug"
+          element={
+            <TenantLayout>
+              <CompanyHome />
+            </TenantLayout>
+          }
+        />
+        <Route
+          path="/:slug/jobs"
+          element={
+            <TenantLayout>
+              <CompanyJobsPage />
+            </TenantLayout>
+          }
+        />
+        <Route
+          path="/:slug/jobs/:jobId"
+          element={
+            <TenantLayout>
+              <CompanyJobDetail />
+            </TenantLayout>
+          }
+        />
+
+        {/* ── Legacy /company/:id redirect (backward compat) ── */}
+        <Route path="/company/:id" element={<Navigate to="/" replace />} />
+
+        {/* ── Fallback ────────────────────────────────────── */}
+        <Route path="*" element={<Navigate to="/" />} />
+
+      </Routes>
+    </Router>
+    </ErrorBoundary>
+  );
+}
+
+export default App;

@@ -1,26 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Users, Shield, UserCheck, UserX, Search, Filter, Settings, Briefcase } from 'lucide-react';
 
-const AdminDashboard = () => {
-  const [users, setUsers] = useState([]);
-  const [search, setSearch] = useState('');
-  const [stats, setStats] = useState({ total: 0, applicants: 0, recruiters: 0, admins: 0 });
+const MOCK_USERS = [
+  { _id: '1', name: 'John Doe',        email: 'john@example.com',    role: 'APPLICANT', joined: 'Oct 2026' },
+  { _id: '2', name: 'Sarah Recruiter', email: 'sarah@kidsden.com',   role: 'RECRUITER', joined: 'Sep 2026' },
+  { _id: '3', name: 'Admin One',       email: 'admin@kidsden.com',   role: 'ADMIN',     joined: 'Jan 2026' },
+  { _id: '4', name: 'Maria Teacher',   email: 'maria@kidsden.com',   role: 'APPLICANT', joined: 'Nov 2026' },
+];
 
-  useEffect(() => {
-    const mockUsers = [
-      { _id: '1', name: 'John Doe',        email: 'john@example.com',    role: 'APPLICANT', joined: 'Oct 2026' },
-      { _id: '2', name: 'Sarah Recruiter', email: 'sarah@kidsden.com',   role: 'RECRUITER', joined: 'Sep 2026' },
-      { _id: '3', name: 'Admin One',       email: 'admin@kidsden.com',   role: 'ADMIN',     joined: 'Jan 2026' },
-      { _id: '4', name: 'Maria Teacher',   email: 'maria@kidsden.com',   role: 'APPLICANT', joined: 'Nov 2026' },
-    ];
-    setUsers(mockUsers);
-    setStats({
-      total: mockUsers.length,
-      applicants: mockUsers.filter(u => u.role === 'APPLICANT').length,
-      recruiters: mockUsers.filter(u => u.role === 'RECRUITER').length,
-      admins: mockUsers.filter(u => u.role === 'ADMIN').length,
-    });
-  }, []);
+const AdminDashboard = () => {
+  const [users] = useState(MOCK_USERS);
+  const [search, setSearch] = useState('');
+  const [stats] = useState({
+    total: MOCK_USERS.length,
+    applicants: MOCK_USERS.filter(u => u.role === 'APPLICANT').length,
+    recruiters: MOCK_USERS.filter(u => u.role === 'RECRUITER').length,
+    admins: MOCK_USERS.filter(u => u.role === 'ADMIN').length,
+  });
 
   const filtered = users.filter(u =>
     u.name.toLowerCase().includes(search.toLowerCase()) ||

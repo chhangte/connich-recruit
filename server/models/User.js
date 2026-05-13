@@ -10,7 +10,13 @@ const UserSchema = new mongoose.Schema({
         enum: ['APPLICANT', 'RECRUITER', 'ADMIN'],
         default: 'APPLICANT'
     },
-    // Only populated for RECRUITER accounts
+    // Link to the Company document (populated when role === RECRUITER)
+    companyId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Company',
+        default: null,
+    },
+    // Legacy embedded company profile (kept for backward compat; new code uses Company model)
     company: {
         name: { type: String, default: '' },
         tagline: { type: String, default: '' },

@@ -24,6 +24,12 @@ const JobSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
+    // Multi-tenant isolation key — links job to its Company tenant
+    companyId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Company',
+        index: true,
+    },
     // Hiring timeline
     hiringMode: {
         type: String,

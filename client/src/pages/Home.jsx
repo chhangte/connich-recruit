@@ -235,88 +235,43 @@ const Home = () => {
         </div>
       </section>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
-        {/* Stats row */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12 animate-fade-up-2">
-          <StatCard icon={Briefcase}   value={loading ? '—' : `${stats.jobsCount}+`} label="Open positions" />
-          <StatCard icon={Building2}   value={loading ? '—' : `${stats.companiesCount}`} label={stats.companiesCount === 1 ? 'Company' : 'Companies'} />
-          <StatCard icon={Users}       value={loading ? '—' : `${stats.candidatesCount}+`} label="Candidates" />
-          <StatCard icon={TrendingUp}  value="98%"    label="Satisfaction" />
-        </div>
+      {/* Main Content Area - Just a spacer or secondary info if needed */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-24 text-center">
+         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <Link to="/browse" className="p-8 rounded-3xl bg-surface-2 border border-border hover:border-accent hover:shadow-xl transition-all no-underline group text-center">
+               <div className="w-14 h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                  <Briefcase className="text-accent" size={28} />
+               </div>
+               <h3 className="text-xl font-bold text-text mb-2">Search Jobs</h3>
+               <p className="text-sm text-text-muted leading-relaxed">Discover thousands of opportunities across 12+ departments.</p>
+               <div className="mt-6 text-accent font-semibold flex items-center justify-center gap-1 group-hover:gap-2 transition-all">
+                  Browse Jobs <ChevronRight size={18} />
+               </div>
+            </Link>
 
-        {/* Filter tabs */}
-        <div className="flex items-center gap-2 flex-wrap mb-8 animate-fade-up-3">
-          <span className="section-label mr-2">Filter</span>
-          {DEPARTMENTS.map((dept) => (
-            <button
-              key={dept}
-              onClick={() => setActiveDept(dept)}
-              className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-all ${
-                activeDept === dept
-                  ? 'bg-accent text-white border-accent'
-                  : 'bg-white text-text-muted border-border hover:border-border-2 hover:text-text'
-              }`}
-            >
-              {dept}
-            </button>
-          ))}
-          {(activeDept !== 'All' || search) && (
-            <button
-              onClick={() => { setActiveDept('All'); setSearch(''); }}
-              className="text-xs text-danger hover:underline ml-1"
-            >
-              Clear filters
-            </button>
-          )}
-        </div>
+            <Link to="/browse-companies" className="p-8 rounded-3xl bg-surface-2 border border-border hover:border-accent hover:shadow-xl transition-all no-underline group text-center">
+               <div className="w-14 h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                  <Building2 className="text-accent" size={28} />
+               </div>
+               <h3 className="text-xl font-bold text-text mb-2">Explore Companies</h3>
+               <p className="text-sm text-text-muted leading-relaxed">View detailed profiles of companies that are actively hiring.</p>
+               <div className="mt-6 text-accent font-semibold flex items-center justify-center gap-1 group-hover:gap-2 transition-all">
+                  Browse Companies <ChevronRight size={18} />
+               </div>
+            </Link>
 
-        {/* Job grid */}
-        {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {[...Array(6)].map((_, i) => <SkeletonCard key={i} />)}
-          </div>
-        ) : filtered.length > 0 ? (
-          <>
-            <p className="text-sm text-text-muted mb-5">
-              Showing <span className="font-semibold text-text">{filtered.length}</span>{' '}
-              {filtered.length === 1 ? 'role' : 'roles'}
-              {activeDept !== 'All' && <> in <span className="font-semibold text-text">{activeDept}</span></>}
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {filtered.map((job) => <JobCard key={job._id} job={job} />)}
-            </div>
-          </>
-        ) : (
-          <div className="text-center py-20">
-            <div className="w-14 h-14 rounded-2xl bg-surface-2 flex items-center justify-center mx-auto mb-4">
-              <Search size={24} className="text-text-xmuted" />
-            </div>
-            <h3 className="font-semibold text-text mb-1">No roles found</h3>
-            <p className="text-sm text-text-muted mb-4">Try adjusting your search or filters</p>
-            <button
-              onClick={() => { setActiveDept('All'); setSearch(''); }}
-              className="btn-outline text-sm"
-            >
-              Clear filters
-            </button>
-          </div>
-        )}
-
-        {/* CTA strip */}
-        {!loading && jobs.length > 0 && (
-          <div className="mt-16 p-8 rounded-2xl bg-surface-2 border border-border flex flex-col sm:flex-row items-center justify-between gap-4 animate-fade-up">
-            <div>
-              <h3 className="font-semibold text-text mb-1">Don't see the right role?</h3>
-              <p className="text-sm text-text-muted">We're always growing. Send us your details and we'll reach out.</p>
-            </div>
-            <a
-              href="mailto:careers@connich.com"
-              className="btn-outline text-sm flex items-center gap-2 shrink-0 no-underline"
-            >
-              Get in touch <ChevronRight size={15} />
-            </a>
-          </div>
-        )}
+            <Link to="/signup" className="p-8 rounded-3xl bg-accent text-white hover:shadow-xl transition-all no-underline group text-center">
+               <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                  <Users className="text-white" size={28} />
+               </div>
+               <h3 className="text-xl font-bold mb-2">Join as Candidate</h3>
+               <p className="text-white/80 text-sm leading-relaxed">Create a profile to track your applications and message recruiters.</p>
+               <div className="mt-6 font-semibold flex items-center justify-center gap-1 group-hover:gap-2 transition-all">
+                  Get Started <ChevronRight size={18} />
+               </div>
+            </Link>
+         </div>
+      </div>
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Building2, ArrowRight, CheckCircle2, Upload, Globe, MapPin, Briefcase, ChevronDown } from 'lucide-react';
 import axios from 'axios';
@@ -19,6 +19,18 @@ const INDUSTRIES = [
   'Real Estate',
   'Other',
 ];
+
+const STOP_WORDS = new Set(['pvt', 'ltd', 'inc', 'corp', 'llc', 'and', 'the', 'of', 'co']);
+function generateSlug(name) {
+  return (name || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .split(/\s+/)
+    .filter(w => w.length > 0 && !STOP_WORDS.has(w))
+    .join('-')
+    .replace(/-+/g, '-')
+    .slice(0, 60) || 'company';
+}
 
 const STEPS = ['Account', 'Company Profile'];
 
@@ -52,7 +64,16 @@ const Step1 = ({ form, setForm, showPassword, setShowPassword }) => (
   </div>
 );
 
-const Step2 = ({ form, setForm }) => (
+const Step2 = ({ form, setForm }) => {
+  // Auto-generate slug when name changes (only if not manually edited)
+  const slugTouched = useRef(false);
+  useEffect(() => {
+    if (!slugTouched.current && form.company.name) {
+      setForm(f => ({ ...f, company: { ...f.company, slug: generateSlug(f.company.name) } }));
+    }
+  }, [form.company.name]);
+
+  return (
   <div className="space-y-4">
     <div>
       <label className="label" htmlFor="c-name">Company name <span className="text-danger">*</span></label>
@@ -60,6 +81,15 @@ const Step2 = ({ form, setForm }) => (
         onChange={e => setForm(f => ({ ...f, company: { ...f.company, name: e.target.value } }))}
         placeholder="Acme Corp." className="input" />
     </div>
+
+    {/* Career Portal URL Preview */}
+    {form.company.slug && (
+      <div className="rounded-lg p-3 border" style={{ background: '#0f172a10', borderColor: '#0f172a20' }}>
+        <p className="text-xs font-semibold uppercase tracking-widest text-text-xmuted mb-1">Your career portal URL</p>
+        <p className="text-sm font-semibold text-text">{window.location.origin}/<span style={{ color: '#2563eb' }}>{form.company.slug}</span></p>
+        <p className="text-xs text-text-xmuted mt-1">You can customise this in your dashboard after signup.</p>
+      </div>
+    )}
 
     <div className="grid grid-cols-2 gap-3">
       <div>
@@ -120,7 +150,8 @@ const Step2 = ({ form, setForm }) => (
         className="input resize-none" />
     </div>
   </div>
-);
+  );
+};
 
 const RecruiterSignup = ({ setUser }) => {
   const [step, setStep] = useState(0);
@@ -132,7 +163,7 @@ const RecruiterSignup = ({ setUser }) => {
   const [form, setForm] = useState({
     name: '', email: '', password: '',
     company: {
-      name: '', industry: '', location: '', tagline: '', website: '', logoUrl: '', about: '',
+      name: '', industry: '', location: '', tagline: '', website: '', logoUrl: '', about: '', slug: '',
     },
   });
 

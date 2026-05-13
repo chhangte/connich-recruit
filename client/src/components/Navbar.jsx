@@ -24,9 +24,7 @@ const Navbar = ({ user, logout }) => {
   const isActive = (path) =>
     path === '/' ? location.pathname === '/' : location.pathname.startsWith(path);
 
-  const navLinks = [
-    { label: 'Browse Jobs', path: '/' },
-  ];
+  const navLinks = [];
 
   return (
     <header className="fixed top-0 inset-x-0 z-50 bg-white/95 backdrop-blur-sm border-b border-border">
@@ -80,7 +78,9 @@ const Navbar = ({ user, logout }) => {
             </>
           ) : (
             <>
-              <Link to="/login" className="btn-ghost text-sm no-underline">Sign in</Link>
+              <Link to="/browse-companies" className="btn-ghost text-sm no-underline">Browse Companies</Link>
+              <Link to="/browse" className="btn-ghost text-sm no-underline">Browse Jobs</Link>
+              <Link to="/login" className="btn-ghost text-sm no-underline ml-2">Sign in</Link>
               <Link to="/signup" className="btn-primary text-sm no-underline">Get started</Link>
             </>
           )}

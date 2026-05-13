@@ -542,6 +542,8 @@ const CompanyProfileTab = ({ user, setUser }) => {
     website: user?.company?.website || '',
     logoUrl: user?.company?.logoUrl || '',
     about: user?.company?.about || '',
+    brandPrimary: user?.company?.brandPrimary || '#2563eb',
+    brandAccent: user?.company?.brandAccent || '#1e3a5f',
   });
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
@@ -598,6 +600,23 @@ const CompanyProfileTab = ({ user, setUser }) => {
             <div>
               <label className="label" htmlFor="cp-web">Website</label>
               <input id="cp-web" type="url" name="website" value={form.website} onChange={handleChange} className="input" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="label" htmlFor="cp-primary">Brand Primary Color</label>
+              <div className="flex gap-2">
+                <input id="cp-primary" type="color" name="brandPrimary" value={form.brandPrimary} onChange={handleChange} className="w-10 h-10 p-1 rounded border border-border" />
+                <input type="text" name="brandPrimary" value={form.brandPrimary} onChange={handleChange} className="input flex-1 font-mono" placeholder="#2563eb" />
+              </div>
+            </div>
+            <div>
+              <label className="label" htmlFor="cp-accent">Brand Accent Color</label>
+              <div className="flex gap-2">
+                <input id="cp-accent" type="color" name="brandAccent" value={form.brandAccent} onChange={handleChange} className="w-10 h-10 p-1 rounded border border-border" />
+                <input type="text" name="brandAccent" value={form.brandAccent} onChange={handleChange} className="input flex-1 font-mono" placeholder="#1e3a5f" />
+              </div>
             </div>
           </div>
 
@@ -974,11 +993,11 @@ const RecruiterDashboard = ({ user, setUser }) => {
                                 <td className="px-5 py-4">
                                   <div className="flex items-center gap-3">
                                     <div className="w-8 h-8 rounded-full bg-accent-light flex items-center justify-center text-accent text-xs font-bold shrink-0">
-                                      {(app.applicant?.name || '?')[0].toUpperCase()}
+                                      {(app.applicant?.name || app.details?.name || '?')[0].toUpperCase()}
                                     </div>
                                     <div>
-                                      <p className="text-sm font-medium text-text">{app.applicant?.name || '—'}</p>
-                                      <p className="text-xs text-text-muted">{app.applicant?.email || ''}</p>
+                                      <p className="text-sm font-medium text-text">{app.applicant?.name || app.details?.name || '—'}</p>
+                                      <p className="text-xs text-text-muted">{app.applicant?.email || app.details?.email || '—'}</p>
                                     </div>
                                   </div>
                                 </td>
@@ -1040,10 +1059,10 @@ const RecruiterDashboard = ({ user, setUser }) => {
                             <div key={app._id} className="p-4 flex items-start justify-between gap-3">
                               <div className="flex items-center gap-3">
                                 <div className="w-9 h-9 rounded-full bg-accent-light flex items-center justify-center text-accent text-xs font-bold shrink-0">
-                                  {(app.applicant?.name || '?')[0].toUpperCase()}
+                                  {(app.applicant?.name || app.details?.name || '?')[0].toUpperCase()}
                                 </div>
                                 <div>
-                                  <p className="text-sm font-medium text-text">{app.applicant?.name || '—'}</p>
+                                  <p className="text-sm font-medium text-text">{app.applicant?.name || app.details?.name || '—'}</p>
                                   <p className="text-xs text-text-muted">
                                     {[app.details?.highestQualification, app.details?.discipline].filter(Boolean).join(' ') || '—'}
                                   </p>

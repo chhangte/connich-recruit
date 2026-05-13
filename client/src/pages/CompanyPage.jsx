@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Globe, MapPin, Briefcase, Clock, Building2, ExternalLink, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Globe, MapPin, Briefcase, CheckCircle2, Building2, ExternalLink } from 'lucide-react';
 import axios from 'axios';
 
 const API_BASE_URL = '/api';
@@ -15,6 +15,8 @@ const DEPT_COLORS = {
   Default:        { bg: '#f8fafc', text: '#475569' },
 };
 const getDeptStyle = d => DEPT_COLORS[d] || DEPT_COLORS.Default;
+
+const NOW = Date.now();
 
 const CompanyPage = () => {
   const { id } = useParams();
@@ -166,7 +168,7 @@ const CompanyPage = () => {
                   const style = getDeptStyle(job.department);
                   const isDeadline = job.hiringMode === 'DEADLINE' && job.lastDateToApply;
                   const deadline = isDeadline ? new Date(job.lastDateToApply) : null;
-                  const daysLeft = deadline ? Math.ceil((deadline - Date.now()) / 86400000) : null;
+                  const daysLeft = deadline ? Math.ceil((deadline - NOW) / 86400000) : null;
                   const isExpired = daysLeft !== null && daysLeft < 0;
                   const isUrgent = daysLeft !== null && daysLeft >= 0 && daysLeft <= 7;
 

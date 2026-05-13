@@ -1,12 +1,14 @@
 const express = require('express');
 const Job = require('../models/Job');
+const Company = require('../models/Company');
 const router = express.Router();
 
-// Get all open jobs (populate company info from recruiter)
+// Get all open jobs (platform-level — all companies)
 router.get('/', async (req, res) => {
     try {
         const jobs = await Job.find({ status: 'OPEN' })
             .populate('postedBy', 'name company')
+            .populate('companyId', 'name slug logoUrl brandPrimary industry location')
             .sort({ createdAt: -1 });
         res.json(jobs);
     } catch (err) {
@@ -19,6 +21,7 @@ router.get('/recruiter/:userId', async (req, res) => {
     try {
         const jobs = await Job.find({ postedBy: req.params.userId })
             .populate('postedBy', 'name company')
+            .populate('companyId', 'name slug logoUrl brandPrimary industry location')
             .sort({ createdAt: -1 });
         res.json(jobs);
     } catch (err) {
@@ -30,7 +33,8 @@ router.get('/recruiter/:userId', async (req, res) => {
 router.get('/:id', async (req, res) => {
     try {
         const job = await Job.findById(req.params.id)
-            .populate('postedBy', 'name company');
+            .populate('postedBy', 'name company')
+            .populate('companyId', 'name slug logoUrl brandPrimary brandAccent industry location website socialLinks tagline about');
         if (!job) return res.status(404).json({ message: 'Job not found' });
         res.json(job);
     } catch (err) {
@@ -47,9 +51,17 @@ router.post('/', async (req, res) => {
             applicationFields,
         } = req.body;
 
+        // Resolve companyId from postedBy (recruiter) for tenant isolation
+        let companyId = req.body.companyId || null;
+        if (!companyId && postedBy) {
+            const company = await Company.findOne({ owner: postedBy });
+            if (company) companyId = company._id;
+        }
+
         const job = new Job({
             title, description, requirements, department, location, salary,
             postedBy,
+            companyId,
             hiringMode: hiringMode || 'ROLLING',
             lastDateToApply: lastDateToApply || null,
             interviewDate: interviewDate || null,
@@ -58,8 +70,9 @@ router.post('/', async (req, res) => {
         });
         await job.save();
 
-        // Re-fetch with populated company info
-        const populated = await Job.findById(job._id).populate('postedBy', 'name company');
+        const populated = await Job.findById(job._id)
+            .populate('postedBy', 'name company')
+            .populate('companyId', 'name slug logoUrl brandPrimary industry location');
         res.json(populated);
     } catch (err) {
         console.error(err);
@@ -74,7 +87,9 @@ router.put('/:id', async (req, res) => {
             req.params.id,
             req.body,
             { new: true }
-        ).populate('postedBy', 'name company');
+        )
+            .populate('postedBy', 'name company')
+            .populate('companyId', 'name slug logoUrl brandPrimary industry location');
         if (!job) return res.status(404).json({ message: 'Job not found' });
         res.json(job);
     } catch (err) {

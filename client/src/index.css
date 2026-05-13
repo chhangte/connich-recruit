@@ -1,4 +1,5 @@
 @import "tailwindcss";
+body { background: white; color: black; }
 
 /* ─────────────────────────────────────────────
    DESIGN TOKENS  (Corporate Light)
