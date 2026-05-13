@@ -33,7 +33,9 @@ const JobDetails = () => {
 
   const handleApply = () => {
     if (user) {
-      navigate(`/apply/${id}`);
+      const slug = job?.companyId?.slug || job?.postedBy?.company?.slug;
+      if (slug) navigate(`/${slug}/apply/${id}`);
+      else navigate(`/apply/${id}`);
     } else {
       setIsApplyModalOpen(true);
     }

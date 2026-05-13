@@ -260,13 +260,13 @@ const Home = () => {
                </div>
             </Link>
 
-            <Link to="/signup" className="p-8 rounded-3xl bg-accent text-white hover:shadow-xl transition-all no-underline group text-center">
-               <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
-                  <Users className="text-white" size={28} />
+            <Link to="/signup" className="p-8 rounded-3xl bg-surface-2 border border-border hover:border-accent hover:shadow-xl transition-all no-underline group text-center">
+               <div className="w-14 h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                  <Users className="text-accent" size={28} />
                </div>
-               <h3 className="text-xl font-bold mb-2">Join as Candidate</h3>
-               <p className="text-white/80 text-sm leading-relaxed">Create a profile to track your applications and message recruiters.</p>
-               <div className="mt-6 font-semibold flex items-center justify-center gap-1 group-hover:gap-2 transition-all">
+               <h3 className="text-xl font-bold text-text mb-2">Join as Candidate</h3>
+               <p className="text-sm text-text-muted leading-relaxed">Create a profile to track your applications and message recruiters.</p>
+               <div className="mt-6 text-accent font-semibold flex items-center justify-center gap-1 group-hover:gap-2 transition-all">
                   Get Started <ChevronRight size={18} />
                </div>
             </Link>

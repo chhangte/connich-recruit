@@ -26,6 +26,10 @@ const KNOWN_APPLICATION_FIELDS = [
   { id: 'educationHistory', label: 'Education Background' },
   { id: 'experience', label: 'Work Experience' },
   { id: 'reference', label: 'Professional Reference' },
+  { id: 'languages', label: 'Languages' },
+  { id: 'sports', label: 'Sports Interest' },
+  { id: 'music', label: 'Music Instruments' },
+  { id: 'arts', label: 'Fine/Performing Arts' },
 ];
 
 /* ── New Job Modal ──────────────────────────── */
@@ -37,6 +41,7 @@ const NewJobModal = ({ onClose, onCreated, recruiterId }) => {
     interviewDate: '',
     interviewVenue: '',
     applicationFields: KNOWN_APPLICATION_FIELDS.map(f => f.id),
+    showOnHome: true,
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -179,7 +184,6 @@ const NewJobModal = ({ onClose, onCreated, recruiterId }) => {
               </div>
             </div>
           </div>
-
           <div className="border-t border-border my-4 pt-4">
             <h3 className="font-semibold text-text mb-1">Application Form Fields</h3>
             <p className="text-xs text-text-muted mb-3">Select the information applicants must provide. Name and Email are always required.</p>
@@ -206,6 +210,30 @@ const NewJobModal = ({ onClose, onCreated, recruiterId }) => {
                 </label>
               ))}
             </div>
+          </div>
+
+          <div className="border-t border-border my-4 pt-4">
+            <h3 className="font-semibold text-text mb-1">Visibility</h3>
+            <p className="text-xs text-text-muted mb-3">Choose where this job listing should be visible.</p>
+            <label className="flex items-center gap-3 p-3 bg-surface-2 rounded-xl border border-border cursor-pointer group hover:border-accent transition-colors">
+              <div className="relative flex items-center shrink-0">
+                <input
+                  type="checkbox"
+                  checked={form.showOnHome}
+                  onChange={(e) => setForm({ ...form, showOnHome: e.target.checked })}
+                  className="sr-only"
+                />
+                <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+                  form.showOnHome ? 'bg-accent border-accent' : 'bg-white border-border group-hover:border-accent'
+                }`}>
+                  {form.showOnHome && <CheckCircle2 size={12} className="text-white" strokeWidth={3} />}
+                </div>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-text">Show on main website home screen</p>
+                <p className="text-[10px] text-text-muted">If unchecked, this job will only appear on your company profile page.</p>
+              </div>
+            </label>
           </div>
         </form>
 
@@ -338,8 +366,18 @@ const generateBioData = (app, jobTitle) => {
     ${halfField('Phone :', d.phone)}
     ${halfField('Marital Status :', d.maritalStatus)}
   </div>
-
-  ${field('Address :', d.address)}
+  <div class="two-col">
+    ${halfField('Gender :', d.gender)}
+    ${halfField('Nationality :', d.nationality)}
+  </div>
+  <div class="two-col">
+    ${halfField('Religion :', d.religion)}
+    ${halfField('Ethnicity :', d.ethnicity)}
+  </div>
+  <div class="two-col">
+    ${halfField('Category :', d.category)}
+    ${halfField('Address :', d.address)}
+  </div>
 
   <div class="divider"></div>
 
@@ -360,7 +398,21 @@ const generateBioData = (app, jobTitle) => {
 
   <div class="divider"></div>
 
-  ${field('Post Graduate Inst. attended :', d.postgraduateInstitute)}
+  ${Array.isArray(d.postgraduates) && d.postgraduates.length > 0
+      ? d.postgraduates.map((pg, i) => field(`Post Graduate Inst. #${i + 1} :`, `${pg.institute} (${pg.course})`)).join('')
+      : field('Post Graduate Inst. attended :', d.postgraduateInstitute)
+    }
+
+  ${Array.isArray(d.languages) && d.languages.length > 0
+      ? field('Languages Known :', d.languages.map(l => `${l.name} (${l.proficiency})`).join(', '))
+      : ''
+    }
+
+  <div class="divider"></div>
+
+  ${d.sports?.name ? field('Sports Interest :', `${d.sports.name}${d.sports.description ? ` - ${d.sports.description}` : ''}`) : ''}
+  ${d.music?.name ? field('Music Instruments :', `${d.music.name}${d.music.description ? ` - ${d.music.description}` : ''}`) : ''}
+  ${d.arts?.name ? field('Fine/Performing Art :', `${d.arts.name}${d.arts.description ? ` - ${d.arts.description}` : ''}`) : ''}
 
   <div class="divider"></div>
 
@@ -456,8 +508,31 @@ const ViewApplicantModal = ({ app, jobTitle, onClose }) => {
           <Row label="Email" value={d.email || app.applicant?.email} />
           <Row label="Phone" value={d.phone} />
           <Row label="Date of Birth" value={d.dob} />
+          <Row label="Gender" value={d.gender} />
+          <Row label="Nationality" value={d.nationality} />
+          <Row label="Ethnicity" value={d.ethnicity} />
+          <Row label="Religion" value={d.religion} />
+          <Row label="Category" value={d.category} />
           <Row label="Address" value={d.address} />
           <Row label="Marital Status" value={d.maritalStatus} />
+
+          {Array.isArray(d.languages) && d.languages.length > 0 && (
+            <>
+              <SectionHead title="Languages" />
+              {d.languages.map((l, i) => (
+                <Row key={i} label={l.name || `Language #${i + 1}`} value={l.proficiency} />
+              ))}
+            </>
+          )}
+
+          {(d.sports?.name || d.music?.name || d.arts?.name) && (
+            <>
+              <SectionHead title="Extracurriculars" />
+              {d.sports?.name && <Row label="Sports" value={`${d.sports.name}${d.sports.description ? ` (${d.sports.description})` : ''}`} />}
+              {d.music?.name && <Row label="Music" value={`${d.music.name}${d.music.description ? ` (${d.music.description})` : ''}`} />}
+              {d.arts?.name && <Row label="Arts" value={`${d.arts.name}${d.arts.description ? ` (${d.arts.description})` : ''}`} />}
+            </>
+          )}
 
           <SectionHead title="Family" />
           <Row label="Father's Name" value={d.fatherName} />
@@ -473,7 +548,13 @@ const ViewApplicantModal = ({ app, jobTitle, onClose }) => {
           <Row label="High School" value={d.highSchool} />
           <Row label="Higher Secondary School" value={d.higherSecondarySchool} />
           <Row label="Undergraduate Institute" value={d.undergraduateInstitute} />
-          <Row label="Postgraduate Institute" value={d.postgraduateInstitute} />
+          {Array.isArray(d.postgraduates) && d.postgraduates.length > 0 ? (
+            d.postgraduates.map((pg, i) => (
+              <Row key={i} label={`Postgraduate #${i + 1}`} value={`${pg.institute} (${pg.course})`} />
+            ))
+          ) : (
+            <Row label="Postgraduate Institute" value={d.postgraduateInstitute} />
+          )}
 
           <SectionHead title="Work Experience" />
           <div className="py-2.5 border-b border-border">
@@ -544,6 +625,19 @@ const CompanyProfileTab = ({ user, setUser }) => {
     about: user?.company?.about || '',
     brandPrimary: user?.company?.brandPrimary || '#2563eb',
     brandAccent: user?.company?.brandAccent || '#1e3a5f',
+    applicationSettings: user?.company?.applicationSettings || {
+      collectGender: true,
+      collectNationality: true,
+      collectEthnicity: true,
+      collectReligion: true,
+      collectCategory: true,
+      collectMaritalStatus: true,
+      collectFamilyInfo: true,
+      collectLanguages: true,
+      collectSports: true,
+      collectMusic: true,
+      collectArts: true,
+    }
   });
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
@@ -638,6 +732,48 @@ const CompanyProfileTab = ({ user, setUser }) => {
           <div>
             <label className="label" htmlFor="cp-about">About</label>
             <textarea id="cp-about" name="about" rows={5} value={form.about} onChange={handleChange} className="input resize-none" placeholder="Tell candidates what makes your company great..." />
+          </div>
+
+          <div className="pt-6 border-t border-border">
+            <h3 className="text-sm font-semibold text-text mb-4">Application Form Settings</h3>
+            <p className="text-xs text-text-muted mb-4">Choose which additional personal details you want to collect from applicants.</p>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {[
+                { key: 'collectGender', label: 'Gender' },
+                { key: 'collectNationality', label: 'Nationality' },
+                { key: 'collectEthnicity', label: 'Ethnicity' },
+                { key: 'collectReligion', label: 'Religion' },
+                { key: 'collectCategory', label: 'Category' },
+                { key: 'collectMaritalStatus', label: 'Marital Status' },
+                { key: 'collectFamilyInfo', label: 'Family Information' },
+                { key: 'collectLanguages', label: 'Languages' },
+                { key: 'collectSports', label: 'Sports Interest' },
+                { key: 'collectMusic', label: 'Music Instruments' },
+                { key: 'collectArts', label: 'Fine/Performing Arts' },
+              ].map((setting) => (
+                <label key={setting.key} className="flex items-center justify-between p-3 rounded-lg bg-surface-2 border border-border/50 cursor-pointer hover:bg-white transition-colors">
+                  <span className="text-sm font-medium text-text">{setting.label}</span>
+                  <div className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="sr-only peer"
+                      checked={form.applicationSettings[setting.key]}
+                      onChange={(e) => {
+                        setForm({
+                          ...form,
+                          applicationSettings: {
+                            ...form.applicationSettings,
+                            [setting.key]: e.target.checked
+                          }
+                        });
+                      }}
+                    />
+                    <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-accent"></div>
+                  </div>
+                </label>
+              ))}
+            </div>
           </div>
 
           <div className="pt-4 border-t border-border flex justify-end">
@@ -743,6 +879,19 @@ const RecruiterDashboard = ({ user, setUser }) => {
       );
     } catch (err) {
       console.error('Error updating status:', err);
+    }
+  };
+
+  /* Toggle job visibility on home screen */
+  const toggleJobHomeVisibility = async (jobId, currentValue) => {
+    try {
+      const res = await axios.put(`${API}/jobs/${jobId}`, { showOnHome: !currentValue });
+      const updatedJob = res.data;
+      setJobs(prev => prev.map(j => j._id === jobId ? updatedJob : j));
+      if (activeJob?._id === jobId) setActiveJob(updatedJob);
+    } catch (err) {
+      console.error('Error toggling visibility:', err);
+      alert('Failed to update visibility.');
     }
   };
 
@@ -922,7 +1071,20 @@ const RecruiterDashboard = ({ user, setUser }) => {
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-5">
                   <div>
-                    <h1 className="text-xl font-bold text-text">{activeJob.title}</h1>
+                    <div className="flex items-center gap-3">
+                      <h1 className="text-xl font-bold text-text">{activeJob.title}</h1>
+                      <button
+                        onClick={() => toggleJobHomeVisibility(activeJob._id, activeJob.showOnHome !== false)}
+                        className={`text-[10px] uppercase tracking-widest font-bold px-2 py-0.5 rounded-full border transition-all ${
+                          activeJob.showOnHome !== false
+                            ? 'bg-success-light text-success border-success/20'
+                            : 'bg-surface-3 text-text-xmuted border-border'
+                        }`}
+                        title={activeJob.showOnHome !== false ? "Visible on main home screen" : "Hidden from main home screen"}
+                      >
+                        {activeJob.showOnHome !== false ? 'Live on Home' : 'Only Profile'}
+                      </button>
+                    </div>
                     <p className="text-sm text-text-muted mt-0.5">
                       {filtered.length} applicant{filtered.length !== 1 ? 's' : ''}
                       {activeJob.department && <> · {activeJob.department}</>}

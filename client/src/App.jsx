@@ -94,7 +94,7 @@ function App() {
           />
           <Route
             path="/apply/:id"
-            element={<PlatformLayout user={user} logout={logout}><Apply user={user} /></PlatformLayout>}
+            element={<Apply user={user} />}
           />
           <Route
             path="/dashboard"
@@ -109,6 +109,7 @@ function App() {
           <Route path="/:slug" element={<TenantLayout><CompanyHome /></TenantLayout>} />
           <Route path="/:slug/jobs" element={<TenantLayout><CompanyJobsPage /></TenantLayout>} />
           <Route path="/:slug/jobs/:jobId" element={<TenantLayout><CompanyJobDetail /></TenantLayout>} />
+          <Route path="/:slug/apply/:id" element={<TenantLayout><Apply user={user} /></TenantLayout>} />
 
           <Route path="*" element={<Navigate to="/" />} />
           <Route

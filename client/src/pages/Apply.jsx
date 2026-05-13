@@ -3,11 +3,24 @@ import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import { CheckCircle2, Building2, Briefcase, Info, ChevronDown, Plus, Trash2 } from 'lucide-react';
 import axios from 'axios';
 import { useCompany } from '../context/CompanyContext';
+import CompanyNavbar from '../components/CompanyNavbar';
+import TenantFooter from '../components/TenantFooter';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
 const API_BASE_URL = '/api';
 
 const QUALIFICATIONS = [
   'Year 10 / SSC', 'Year 12 / HSC', 'Diploma', 'Bachelors', 'Masters', 'PhD',
+];
+
+const CATEGORIES = [
+  'General / Unreserved (UR)', 
+  'Other Backward Classes (OBC) - Creamy Layer', 
+  'Other Backward Classes (OBC) - Non-Creamy Layer', 
+  'Scheduled Castes (SC)', 
+  'Scheduled Tribes (ST)', 
+  'Economically Weaker Sections (EWS)'
 ];
 
 const FIELDS = [
@@ -71,6 +84,11 @@ const Apply = ({ user }) => {
     country: '',
     pin: '',
     dob: user?.profile?.dob || '',
+    gender: user?.profile?.gender || '',
+    nationality: user?.profile?.nationality || '',
+    ethnicity: user?.profile?.ethnicity || '',
+    religion: user?.profile?.religion || '',
+    category: user?.profile?.category || '',
     maritalStatus: user?.profile?.maritalStatus || '',
     // Family
     fatherName: user?.profile?.fatherName || '',
@@ -87,11 +105,17 @@ const Apply = ({ user }) => {
     hscStream: user?.profile?.hscStream || '',
     undergraduateInstitute: user?.profile?.undergraduateInstitute || '',
     ugCourse: user?.profile?.ugCourse || '',
-    postgraduateInstitute: user?.profile?.postgraduateInstitute || '',
-    pgCourse: user?.profile?.pgCourse || '',
+    diplomaInstitute: user?.profile?.diplomaInstitute || '',
+    diplomaCourse: user?.profile?.diplomaCourse || '',
+    postgraduates: user?.profile?.postgraduates || [{ institute: '', course: '' }],
     // Experience
     isFresher: user?.profile?.isFresher || false,
     experiences: user?.profile?.experiences || [{ jobTitle: '', description: '', fromMonth: '', fromYear: '', toMonth: '', toYear: '', referenceName: '', referencePhone: '' }],
+    // Extracurriculars
+    languages: user?.profile?.languages || [{ name: '', proficiency: '' }],
+    sports: user?.profile?.sports || { name: '', description: '' },
+    music: user?.profile?.music || { name: '', description: '' },
+    arts: user?.profile?.arts || { name: '', description: '' },
   });
 
   const { company: contextCompany } = useCompany();
@@ -101,6 +125,12 @@ const Apply = ({ user }) => {
       try {
         const res = await axios.get(`${API_BASE_URL}/jobs/${id}`);
         setJob(res.data);
+        
+        // If we're on the generic /apply/:id path, redirect to branded /:slug/apply/:id
+        const slug = res.data.postedBy?.company?.slug;
+        if (slug && !location.pathname.startsWith(`/${slug}`)) {
+          navigate(`/${slug}/apply/${id}`, { state: location.state, replace: true });
+        }
       } catch (err) {
         console.error('Error fetching job:', err);
       } finally {
@@ -108,7 +138,7 @@ const Apply = ({ user }) => {
       }
     };
     fetchJob();
-  }, [id]);
+  }, [id, location, navigate]);
 
   const company = contextCompany || job?.postedBy?.company;
   const primaryColor = company?.brandPrimary || '#2563eb';
@@ -126,6 +156,22 @@ const Apply = ({ user }) => {
       res += val[i];
     }
     setForm(prev => ({ ...prev, dob: res }));
+  };
+
+  const addPostgraduate = () => {
+    setForm({ ...form, postgraduates: [...form.postgraduates, { institute: '', course: '' }] });
+  };
+
+  const removePostgraduate = (index) => {
+    const updated = form.postgraduates.filter((_, i) => i !== index);
+    setForm({ ...form, postgraduates: updated.length ? updated : [{ institute: '', course: '' }] });
+  };
+
+  const updatePostgraduate = (index, field, value) => {
+    const updated = form.postgraduates.map((pg, i) =>
+      i === index ? { ...pg, [field]: value } : pg
+    );
+    setForm({ ...form, postgraduates: updated });
   };
 
   const addExperience = () => {
@@ -155,6 +201,18 @@ const Apply = ({ user }) => {
       updated[index] = { ...updated[index], [field]: value };
       return { ...prev, experiences: updated };
     });
+  };
+
+  const addLanguage = () => {
+    setForm({ ...form, languages: [...form.languages, { name: '', proficiency: '' }] });
+  };
+  const removeLanguage = (index) => {
+    const updated = form.languages.filter((_, i) => i !== index);
+    setForm({ ...form, languages: updated.length ? updated : [{ name: '', proficiency: '' }] });
+  };
+  const updateLanguage = (index, field, value) => {
+    const updated = form.languages.map((l, i) => i === index ? { ...l, [field]: value } : l);
+    setForm({ ...form, languages: updated });
   };
 
   const handleSubmit = async (e) => {
@@ -220,8 +278,23 @@ const Apply = ({ user }) => {
   const inputCls = 'input';
   const selectCls = 'input appearance-none cursor-pointer';
 
+  // If we are inside TenantLayout, useCompany() will have the company.
+  // If not (e.g. during redirect or fallback), we use the one from job.
+  const isBranded = !!contextCompany || !!job?.postedBy?.company?.slug;
+
   return (
-    <div className="min-h-screen bg-surface-2 pt-14">
+    <div className="flex flex-col min-h-screen bg-surface-2">
+      {contextCompany ? null : isBranded && job?.postedBy?.company ? (
+        // Temporary navbar if not yet in TenantLayout
+        <div className="fixed top-0 inset-x-0 z-50 h-14 bg-white border-b flex items-center px-4 sm:px-6">
+           <div className="w-8 h-8 rounded bg-gray-100 mr-2 shrink-0" />
+           <span className="font-semibold text-sm">{job.postedBy.company.name}</span>
+        </div>
+      ) : (
+        <Navbar user={user} />
+      )}
+
+      <div className="flex-1 pt-14">
       {/* Breadcrumb */}
       <div className="border-b border-border bg-white">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-2 text-sm text-text-muted">
@@ -242,21 +315,6 @@ const Apply = ({ user }) => {
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
         {/* Page header */}
         <div className="mb-6 animate-fade-up">
-          {company && (
-            <div className="flex items-center gap-4 mb-6 p-4 rounded-2xl bg-white border border-border shadow-sm">
-              <div className="w-16 h-16 rounded-xl border border-border bg-surface-2 flex items-center justify-center shrink-0 overflow-hidden">
-                {company.logoUrl ? (
-                  <img src={company.logoUrl} alt={company.name} className="w-full h-full object-contain p-1" />
-                ) : (
-                  <Building2 size={32} className="text-text-muted" />
-                )}
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-text">{company.name}</h1>
-                <p className="text-sm text-text-muted">{company.tagline || 'Career Portal'}</p>
-              </div>
-            </div>
-          )}
           <h2 className="text-xl font-bold text-text">Job Application Form</h2>
           {job && (
             <div className="flex items-center gap-2 mt-2">
@@ -319,6 +377,94 @@ const Apply = ({ user }) => {
                     className={inputCls} />
                 </Field>
               )}
+
+              {(company?.applicationSettings?.collectGender ?? true) && (
+                <Field label="Gender" required>
+                  <div className="relative">
+                    <select required value={form.gender} onChange={set('gender')} className={selectCls}>
+                      <option value="">Select gender…</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                    </select>
+                    <ChevronDown size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-xmuted pointer-events-none" />
+                  </div>
+                </Field>
+              )}
+
+              {(company?.applicationSettings?.collectCategory ?? true) && (
+                <Field label="Category" required>
+                  <div className="relative">
+                    <select required value={form.category} onChange={set('category')} className={selectCls}>
+                      <option value="">Select category…</option>
+                      {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                    <ChevronDown size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-xmuted pointer-events-none" />
+                  </div>
+                </Field>
+              )}
+
+              {(company?.applicationSettings?.collectNationality ?? true) && (
+                <Field label="Nationality" required>
+                  <input type="text" required value={form.nationality} onChange={set('nationality')}
+                    placeholder="e.g. Indian" className={inputCls} />
+                </Field>
+              )}
+
+              {(company?.applicationSettings?.collectEthnicity ?? true) && (
+                <Field label="Ethnicity" required>
+                  <div className="relative">
+                    <select required value={form.ethnicity} onChange={set('ethnicity')} className={selectCls}>
+                      <option value="">Select ethnicity…</option>
+                      <option value="Asian">Asian</option>
+                      <option value="Black / African">Black / African</option>
+                      <option value="Hispanic / Latino">Hispanic / Latino</option>
+                      <option value="White / Caucasian">White / Caucasian</option>
+                      <option value="Middle Eastern">Middle Eastern</option>
+                      <option value="Native American">Native American</option>
+                      <option value="Pacific Islander">Pacific Islander</option>
+                      <option value="Mixed / Multiple">Mixed / Multiple</option>
+                      <option value="Other">Other</option>
+                    </select>
+                    <ChevronDown size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-xmuted pointer-events-none" />
+                  </div>
+                </Field>
+              )}
+
+              {(company?.applicationSettings?.collectReligion ?? true) && (
+                <Field label="Religion" required>
+                  <div className="relative">
+                    <select required value={form.religion} onChange={set('religion')} className={selectCls}>
+                      <option value="">Select religion…</option>
+                      <option value="Hinduism">Hinduism</option>
+                      <option value="Islam">Islam</option>
+                      <option value="Christianity">Christianity</option>
+                      <option value="Sikhism">Sikhism</option>
+                      <option value="Buddhism">Buddhism</option>
+                      <option value="Jainism">Jainism</option>
+                      <option value="Zoroastrianism">Zoroastrianism (Parsi)</option>
+                      <option value="No Religion / Secular">No Religion / Secular</option>
+                      <option value="Other">Other</option>
+                    </select>
+                    <ChevronDown size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-xmuted pointer-events-none" />
+                  </div>
+                </Field>
+              )}
+
+              {hasField('maritalStatus') && (company?.applicationSettings?.collectMaritalStatus ?? true) && (
+                <Field label="Marital Status" required>
+                  <div className="relative">
+                    <select required value={form.maritalStatus}
+                      onChange={set('maritalStatus')}
+                      className={selectCls}>
+                      <option value="">Select status…</option>
+                      <option value="Single/Unmarried">Single / Unmarried</option>
+                      <option value="Married">Married</option>
+                    </select>
+                    <ChevronDown size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-xmuted pointer-events-none" />
+                  </div>
+                </Field>
+              )}
             </div>
 
             {/* Address */}
@@ -362,24 +508,10 @@ const Apply = ({ user }) => {
                 </div>
               </div>
             )}
-
-            {hasField('maritalStatus') && (
-              <Field label="Marital Status" required>
-                <div className="relative">
-                  <select required value={form.maritalStatus} onChange={set('maritalStatus')}
-                    className={selectCls}>
-                    <option value="">Select status…</option>
-                    <option value="Single/Unmarried">Single / Unmarried</option>
-                    <option value="Married">Married</option>
-                  </select>
-                  <ChevronDown size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-xmuted pointer-events-none" />
-                </div>
-              </Field>
-            )}
           </div>
 
           {/* ── 2. Family Information ── */}
-          {hasField('familyInfo') && (
+          {hasField('familyInfo') && (company?.applicationSettings?.collectFamilyInfo ?? true) && (
             <div className="bg-white rounded-xl border border-border p-6 space-y-5">
               <Section title="Family Information" />
 
@@ -465,52 +597,97 @@ const Apply = ({ user }) => {
                   </Field>
                 </div>
 
-                <div className="pt-4 border-t border-border/50">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <Field label="Higher Secondary School (Class 12)" required>
-                      <input type="text" required value={form.higherSecondarySchool} onChange={set('higherSecondarySchool')}
-                        placeholder="School / College name" className={inputCls} />
-                    </Field>
-                    <Field label="Stream" required>
-                      <div className="relative">
-                        <select required value={form.hscStream} onChange={set('hscStream')} className={selectCls}>
-                          <option value="">Select Stream</option>
-                          <option value="Arts">Arts</option>
-                          <option value="Science">Science</option>
-                          <option value="Commerce">Commerce</option>
-                          <option value="Other">Other</option>
-                        </select>
-                        <ChevronDown size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-xmuted pointer-events-none" />
+                {['Year 12 / HSC', 'Diploma', 'Bachelors', 'Masters', 'PhD'].includes(form.highestQualification) && (
+                  <div className="pt-4 border-t border-border/50">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <Field label="Higher Secondary School (Class 12)" required>
+                        <input type="text" required value={form.higherSecondarySchool} onChange={set('higherSecondarySchool')}
+                          placeholder="School name" className={inputCls} />
+                      </Field>
+                      <Field label="Stream" required>
+                        <div className="relative">
+                          <select required value={form.hscStream} onChange={set('hscStream')} className={selectCls}>
+                            <option value="">Select Stream</option>
+                            <option value="Arts">Arts</option>
+                            <option value="Science">Science</option>
+                            <option value="Commerce">Commerce</option>
+                            <option value="Other">Other</option>
+                          </select>
+                          <ChevronDown size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-xmuted pointer-events-none" />
+                        </div>
+                      </Field>
+                    </div>
+                  </div>
+                )}
+
+                {form.highestQualification === 'Diploma' && (
+                  <div className="pt-4 border-t border-border/50">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <Field label="Diploma Institute Attended" required>
+                        <input type="text" required value={form.diplomaInstitute} onChange={set('diplomaInstitute')}
+                          placeholder="Institute name" className={inputCls} />
+                      </Field>
+                      <Field label="Diploma Course" required>
+                        <input type="text" required value={form.diplomaCourse} onChange={set('diplomaCourse')}
+                          placeholder="e.g. Diploma in Civil Engineering" className={inputCls} />
+                      </Field>
+                    </div>
+                  </div>
+                )}
+
+                {['Bachelors', 'Masters', 'PhD'].includes(form.highestQualification) && (
+                  <div className="pt-4 border-t border-border/50">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <Field label="Undergraduate Institute Attended" required>
+                        <input type="text" required value={form.undergraduateInstitute} onChange={set('undergraduateInstitute')}
+                          placeholder="College / University name" className={inputCls} />
+                      </Field>
+                      <Field label="Course / Major" required>
+                        <input type="text" required value={form.ugCourse} onChange={set('ugCourse')}
+                          placeholder="e.g. B.A. English, B.Sc. Physics" className={inputCls} />
+                      </Field>
+                    </div>
+                  </div>
+                )}
+
+                {['Masters', 'PhD'].includes(form.highestQualification) && (
+                  <div className="space-y-4">
+                    {form.postgraduates.map((pg, index) => (
+                      <div key={index} className="pt-4 border-t border-border/50 animate-fade-up">
+                        <div className="flex items-center justify-between mb-3">
+                          <p className="text-xs font-bold uppercase tracking-widest text-text-xmuted">Postgraduate #{index + 1}</p>
+                          {form.postgraduates.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => removePostgraduate(index)}
+                              className="text-danger hover:bg-danger-light p-1 rounded-md transition-colors"
+                              title="Remove"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <Field label="Postgraduate Institute Attended" required>
+                            <input type="text" required value={pg.institute} onChange={(e) => updatePostgraduate(index, 'institute', e.target.value)}
+                              placeholder="College / University name" className={inputCls} />
+                          </Field>
+                          <Field label="Course / Major" required>
+                            <input type="text" required value={pg.course} onChange={(e) => updatePostgraduate(index, 'course', e.target.value)}
+                              placeholder="e.g. M.A. Psychology" className={inputCls} />
+                          </Field>
+                        </div>
                       </div>
-                    </Field>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={addPostgraduate}
+                      className="text-accent text-xs font-bold hover:underline flex items-center gap-1.5 mt-2"
+                    >
+                      <Plus size={14} /> Add Postgraduate Institute
+                    </button>
                   </div>
-                </div>
-
-                <div className="pt-4 border-t border-border/50">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <Field label="Undergraduate Institute Attended" required>
-                      <input type="text" required value={form.undergraduateInstitute} onChange={set('undergraduateInstitute')}
-                        placeholder="College / University name" className={inputCls} />
-                    </Field>
-                    <Field label="Course / Major" required>
-                      <input type="text" required value={form.ugCourse} onChange={set('ugCourse')}
-                        placeholder="e.g. B.A. English, B.Sc. Physics" className={inputCls} />
-                    </Field>
-                  </div>
-                </div>
-
-                <div className="pt-4 border-t border-border/50">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <Field label="Postgraduate Institute Attended" required>
-                      <input type="text" required value={form.postgraduateInstitute} onChange={set('postgraduateInstitute')}
-                        placeholder="College / University name" className={inputCls} />
-                    </Field>
-                    <Field label="Course / Major" required>
-                      <input type="text" required value={form.pgCourse} onChange={set('pgCourse')}
-                        placeholder="e.g. M.A. Psychology" className={inputCls} />
-                    </Field>
-                  </div>
-                </div>
+                )}
               </div>
             </div>
           )}
@@ -660,7 +837,164 @@ const Apply = ({ user }) => {
             </div>
           )}
 
-          {/* ── 5. Declaration ── */}
+          {/* ── 5. Languages Known ── */}
+          {(company?.applicationSettings?.collectLanguages ?? true) && (
+            <div className="bg-white rounded-xl border border-border p-6 space-y-5">
+              <Section title="Languages Known" />
+              <div className="space-y-4">
+                {form.languages.map((lang, idx) => (
+                  <div key={idx} className="p-4 rounded-xl border border-border/50 bg-surface-2/50 relative group animate-fade-up">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <Field label={`Language #${idx + 1}`} required>
+                        <input
+                          type="text"
+                          required
+                          value={lang.name}
+                          onChange={(e) => updateLanguage(idx, 'name', e.target.value)}
+                          placeholder="e.g. English, Hindi, Mizo"
+                          className={inputCls}
+                        />
+                      </Field>
+                      <Field label="Proficiency" required>
+                        <div className="relative">
+                          <select
+                            required
+                            value={lang.proficiency}
+                            onChange={(e) => updateLanguage(idx, 'proficiency', e.target.value)}
+                            className={selectCls}
+                          >
+                            <option value="">Select proficiency…</option>
+                            <option value="Native / Bilingual">Native / Bilingual</option>
+                            <option value="Fluent / Professional">Fluent / Professional</option>
+                            <option value="Intermediate / Professional Working">Intermediate / Professional Working</option>
+                            <option value="Elementary / Limited Working">Elementary / Limited Working</option>
+                            <option value="Beginner / Basic">Beginner / Basic</option>
+                          </select>
+                          <ChevronDown size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-xmuted pointer-events-none" />
+                        </div>
+                      </Field>
+                    </div>
+                    {form.languages.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeLanguage(idx)}
+                        className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-white border border-danger/20 text-danger shadow-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-danger-light"
+                      >
+                        <X size={12} />
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={addLanguage}
+                  className="flex items-center gap-2 text-sm font-medium text-accent hover:text-accent-dark transition-colors px-1"
+                >
+                  <PlusCircle size={16} /> Add Language
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ── 6. Extracurricular Interests ── */}
+          {((company?.applicationSettings?.collectSports ?? true) || 
+             (company?.applicationSettings?.collectMusic ?? true) || 
+             (company?.applicationSettings?.collectArts ?? true)) && (
+            <div className="bg-white rounded-xl border border-border p-6 space-y-6">
+              <Section title="Extracurricular Interests" subtitle="Select interests and provide optional details like certifications or achievements." />
+              
+              <div className="space-y-6">
+                {(company?.applicationSettings?.collectSports ?? true) && (
+                  <div className="space-y-4">
+                    <Field label="Sports Interest">
+                      <div className="relative">
+                        <select
+                          value={form.sports.name}
+                          onChange={(e) => setForm({ ...form, sports: { ...form.sports, name: e.target.value } })}
+                          className={selectCls}
+                        >
+                          <option value="">None / Not specified</option>
+                          {['Football', 'Basketball', 'Cricket', 'Badminton', 'Tennis', 'Table Tennis', 'Volleyball', 'Athletics', 'Swimming', 'Boxing / Martial Arts', 'Chess', 'E-Sports', 'Other'].map(s => (
+                            <option key={s} value={s}>{s}</option>
+                          ))}
+                        </select>
+                        <ChevronDown size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-xmuted pointer-events-none" />
+                      </div>
+                    </Field>
+                    <Field label="Sports Achievements / Certifications (Optional)">
+                      <textarea
+                        rows={2}
+                        value={form.sports.description}
+                        onChange={(e) => setForm({ ...form, sports: { ...form.sports, description: e.target.value } })}
+                        placeholder="Describe your role, certificates, or notable achievements..."
+                        className="input min-h-[80px] py-2"
+                      />
+                    </Field>
+                  </div>
+                )}
+
+                {(company?.applicationSettings?.collectMusic ?? true) && (
+                  <div className="space-y-4 pt-4 border-t border-border/50">
+                    <Field label="Musical Instruments">
+                      <div className="relative">
+                        <select
+                          value={form.music.name}
+                          onChange={(e) => setForm({ ...form, music: { ...form.music, name: e.target.value } })}
+                          className={selectCls}
+                        >
+                          <option value="">None / Not specified</option>
+                          {['Guitar (Acoustic/Electric)', 'Piano / Keyboard', 'Drums / Percussion', 'Violin', 'Flute', 'Vocals', 'Bass Guitar', 'Other'].map(m => (
+                            <option key={m} value={m}>{m}</option>
+                          ))}
+                        </select>
+                        <ChevronDown size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-xmuted pointer-events-none" />
+                      </div>
+                    </Field>
+                    <Field label="Music Achievements / Certifications (Optional)">
+                      <textarea
+                        rows={2}
+                        value={form.music.description}
+                        onChange={(e) => setForm({ ...form, music: { ...form.music, description: e.target.value } })}
+                        placeholder="Grade levels, performances, or certifications..."
+                        className="input min-h-[80px] py-2"
+                      />
+                    </Field>
+                  </div>
+                )}
+
+                {(company?.applicationSettings?.collectArts ?? true) && (
+                  <div className="space-y-4 pt-4 border-t border-border/50">
+                    <Field label="Fine / Performing Arts">
+                      <div className="relative">
+                        <select
+                          value={form.arts.name}
+                          onChange={(e) => setForm({ ...form, arts: { ...form.arts, name: e.target.value } })}
+                          className={selectCls}
+                        >
+                          <option value="">None / Not specified</option>
+                          {['Painting / Sketching', 'Dance (Modern/Classical)', 'Theatre / Drama', 'Photography', 'Sculpting', 'Graphic Design / Digital Art', 'Other'].map(a => (
+                            <option key={a} value={a}>{a}</option>
+                          ))}
+                        </select>
+                        <ChevronDown size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-xmuted pointer-events-none" />
+                      </div>
+                    </Field>
+                    <Field label="Arts Achievements / Certifications (Optional)">
+                      <textarea
+                        rows={2}
+                        value={form.arts.description}
+                        onChange={(e) => setForm({ ...form, arts: { ...form.arts, description: e.target.value } })}
+                        placeholder="Exhibitions, stage shows, or art certifications..."
+                        className="input min-h-[80px] py-2"
+                      />
+                    </Field>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ── Final Agreement ── */}
           <div className="bg-white rounded-xl border border-border p-6">
             <Section title="Declaration" />
 
@@ -709,6 +1043,8 @@ const Apply = ({ user }) => {
 
         </form>
       </div>
+      </div>
+      {contextCompany ? null : isBranded ? <TenantFooter /> : <Footer />}
     </div>
   );
 };

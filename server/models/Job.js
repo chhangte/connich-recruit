@@ -45,6 +45,10 @@ const JobSchema = new mongoose.Schema({
         type: [String],
         default: ['phone', 'dob', 'address', 'maritalStatus', 'familyInfo', 'educationHistory', 'experience'],
     },
+    showOnHome: {
+        type: Boolean,
+        default: true
+    },
     createdAt: { type: Date, default: Date.now }
 });
 

@@ -52,10 +52,6 @@ const Footer = () => {
         {/* Recruiter CTA banner */}
         <div className="rounded-xl border border-border bg-white p-5 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-              style={{ background: 'linear-gradient(135deg, #1e3a5f, #2563eb)' }}>
-              <Building2 size={18} className="text-white" />
-            </div>
             <div>
               <p className="text-sm font-semibold text-text">Are you an employer?</p>
               <p className="text-xs text-text-muted">Post jobs, manage applications, and find great talent.</p>
@@ -64,15 +60,15 @@ const Footer = () => {
           <div className="flex items-center gap-3 shrink-0">
             <Link
               to="/recruiter/login"
-              className="text-sm font-medium text-text-muted hover:text-text no-underline transition-colors"
+              className="btn-outline text-sm py-2 px-4 no-underline"
             >
               Recruiter sign in
             </Link>
             <Link
               to="/recruiter/signup"
-              className="btn-primary text-sm py-2 px-4 no-underline flex items-center gap-1.5"
+              className="btn-primary text-sm py-2 px-4 no-underline"
             >
-              Post a job <ArrowRight size={14} />
+              Post a job
             </Link>
           </div>
         </div>

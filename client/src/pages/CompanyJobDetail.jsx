@@ -9,13 +9,13 @@ import { useCompany } from '../context/CompanyContext';
 import ApplyGateModal from '../components/ApplyGateModal';
 
 const DEPT_COLORS = {
-  Engineering:    { bg: '#eff6ff', text: '#1d4ed8' },
-  Education:      { bg: '#f0fdf4', text: '#15803d' },
-  Design:         { bg: '#fdf4ff', text: '#7e22ce' },
-  Marketing:      { bg: '#fff7ed', text: '#c2410c' },
+  Engineering: { bg: '#eff6ff', text: '#1d4ed8' },
+  Education: { bg: '#f0fdf4', text: '#15803d' },
+  Design: { bg: '#fdf4ff', text: '#7e22ce' },
+  Marketing: { bg: '#fff7ed', text: '#c2410c' },
   Administration: { bg: '#f0f9ff', text: '#0369a1' },
-  Finance:        { bg: '#fefce8', text: '#a16207' },
-  Default:        { bg: '#f8fafc', text: '#475569' },
+  Finance: { bg: '#fefce8', text: '#a16207' },
+  Default: { bg: '#f8fafc', text: '#475569' },
 };
 const getDeptStyle = d => DEPT_COLORS[d] || DEPT_COLORS.Default;
 
@@ -57,7 +57,7 @@ const CompanyJobDetail = () => {
 
   const handleApply = () => {
     if (user) {
-      navigate(`/apply/${jobId}`);
+      navigate(`/${slug}/apply/${jobId}`);
     } else {
       setIsApplyModalOpen(true);
     }
@@ -340,14 +340,14 @@ const CompanyJobDetail = () => {
                 ) : (
                   <button
                     onClick={handleApply}
-                    className="w-full flex items-center justify-center gap-2 text-sm font-bold py-3.5 rounded-xl text-white transition-all hover:opacity-90 shadow-sm hover:shadow-md"
-                    style={{ background: `linear-gradient(135deg, ${accent}, ${primary})` }}
+                    className="w-full flex items-center justify-center gap-2 text-sm font-bold py-3.5 rounded-xl text-white transition-all hover:opacity-90 shadow-sm"
+                    style={{ backgroundColor: primary }}
                   >
-                    Apply for this role →
+                    Apply for this role
                   </button>
                 )}
                 <p className="text-xs text-center text-gray-300 mt-3">
-                  {user ? 'Your profile is pre-filled' : 'No account needed to apply'}
+                  {user ? 'Your profile is pre-filled' : 'Account creation is optional'}
                 </p>
               </div>
 
@@ -364,9 +364,9 @@ const CompanyJobDetail = () => {
           </div>
         </div>
       </div>
-      <ApplyGateModal 
-        isOpen={isApplyModalOpen} 
-        onClose={() => setIsApplyModalOpen(false)} 
+      <ApplyGateModal
+        isOpen={isApplyModalOpen}
+        onClose={() => setIsApplyModalOpen(false)}
         jobId={jobId}
         company={company}
       />

@@ -6,7 +6,7 @@ const router = express.Router();
 // Get all open jobs (platform-level — all companies)
 router.get('/', async (req, res) => {
     try {
-        const jobs = await Job.find({ status: 'OPEN' })
+        const jobs = await Job.find({ status: 'OPEN', showOnHome: { $ne: false } })
             .populate('postedBy', 'name company')
             .populate('companyId', 'name slug logoUrl brandPrimary industry location')
             .sort({ createdAt: -1 });
@@ -48,7 +48,7 @@ router.post('/', async (req, res) => {
         const {
             title, description, requirements, department, location, salary,
             postedBy, hiringMode, lastDateToApply, interviewDate, interviewVenue,
-            applicationFields,
+            applicationFields, showOnHome
         } = req.body;
 
         // Resolve companyId from postedBy (recruiter) for tenant isolation
@@ -67,6 +67,7 @@ router.post('/', async (req, res) => {
             interviewDate: interviewDate || null,
             interviewVenue: interviewVenue || '',
             applicationFields: applicationFields || [],
+            showOnHome: showOnHome !== undefined ? showOnHome : true,
         });
         await job.save();
 

@@ -130,6 +130,9 @@ router.patch('/company/:userId', async (req, res) => {
                     location: companyData.location || '',
                     website: companyData.website || '',
                     logoUrl: companyData.logoUrl || '',
+                    brandPrimary: companyData.brandPrimary,
+                    brandAccent: companyData.brandAccent,
+                    applicationSettings: companyData.applicationSettings
                 }
             },
             { new: true }

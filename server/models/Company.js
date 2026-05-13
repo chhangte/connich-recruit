@@ -43,6 +43,21 @@ const CompanySchema = new mongoose.Schema({
     // Reserved for future custom domain support
     customDomain: { type: String, default: '' },
 
+    // Application Form Settings
+    applicationSettings: {
+        collectGender:        { type: Boolean, default: true },
+        collectNationality:   { type: Boolean, default: true },
+        collectEthnicity:      { type: Boolean, default: true },
+        collectReligion:       { type: Boolean, default: true },
+        collectCategory:       { type: Boolean, default: true },
+        collectMaritalStatus:  { type: Boolean, default: true },
+        collectFamilyInfo:     { type: Boolean, default: true },
+        collectLanguages:      { type: Boolean, default: true },
+        collectSports:         { type: Boolean, default: true },
+        collectMusic:          { type: Boolean, default: true },
+        collectArts:           { type: Boolean, default: true },
+    },
+
     createdAt: { type: Date, default: Date.now },
 });
 
