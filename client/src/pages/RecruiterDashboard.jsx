@@ -41,8 +41,22 @@ const NewJobModal = ({ onClose, onCreated, recruiterId }) => {
     interviewDate: '',
     interviewVenue: '',
     applicationFields: KNOWN_APPLICATION_FIELDS.map(f => f.id),
+    applicationSettings: {
+      collectGender: true,
+      collectNationality: true,
+      collectEthnicity: true,
+      collectReligion: true,
+      collectCategory: true,
+      collectMaritalStatus: true,
+      collectFamilyInfo: true,
+      collectLanguages: true,
+      collectSports: true,
+      collectMusic: true,
+      collectArts: true,
+    },
     showOnHome: true,
   });
+  const [step, setStep] = useState(1);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const firstRef = useRef(null);
@@ -82,171 +96,300 @@ const NewJobModal = ({ onClose, onCreated, recruiterId }) => {
       style={{ background: 'rgba(15,23,42,0.5)', backdropFilter: 'blur(4px)' }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg animate-fade-up overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl animate-fade-up overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-          <h2 className="font-semibold text-text">Post a new job listing</h2>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-white sticky top-0 z-10">
+          <div>
+            <h2 className="font-semibold text-text">Post a new job listing</h2>
+            <p className="text-[10px] text-text-muted">Step {step} of 2: {step === 1 ? 'Job Details' : 'Application Form Configuration'}</p>
+          </div>
           <button onClick={onClose} className="btn-ghost p-1.5 rounded-md">
             <X size={18} />
           </button>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4 overflow-y-auto max-h-[70vh]">
-          {error && (
-            <div className="flex items-center gap-2 p-3 bg-danger-light border border-danger/20 rounded-lg text-sm text-danger">
-              <AlertCircle size={15} className="shrink-0" /> {error}
-            </div>
-          )}
-
-          {/* Title */}
-          <div>
-            <label className="label" htmlFor="job-title">Job title <span className="text-danger">*</span></label>
-            <input ref={firstRef} id="job-title" name="title" required value={form.title}
-              onChange={handleChange} placeholder="e.g. Senior Software Engineer" className="input" />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            {/* Department */}
-            <div>
-              <label className="label" htmlFor="job-dept">Department <span className="text-danger">*</span></label>
-              <select id="job-dept" name="department" required value={form.department}
-                onChange={handleChange} className="input">
-                <option value="">Select…</option>
-                {DEPARTMENTS.map(d => <option key={d} value={d}>{d}</option>)}
-              </select>
-            </div>
-            {/* Location */}
-            <div>
-              <label className="label" htmlFor="job-location">Location</label>
-              <input id="job-location" name="location" value={form.location}
-                onChange={handleChange} placeholder="e.g. Lagos, Nigeria" className="input" />
-            </div>
-          </div>
-
-          {/* Salary */}
-          <div>
-            <label className="label" htmlFor="job-salary">Salary / Compensation</label>
-            <input id="job-salary" name="salary" value={form.salary}
-              onChange={handleChange} placeholder="e.g. 80,000 – 100,000" className="input" />
-          </div>
-
-          {/* Description */}
-          <div>
-            <label className="label" htmlFor="job-desc">Description <span className="text-danger">*</span></label>
-            <textarea id="job-desc" name="description" required rows={3} value={form.description}
-              onChange={handleChange}
-              placeholder="Briefly describe the role, responsibilities, and team…"
-              className="input resize-none" />
-          </div>
-
-          {/* Requirements */}
-          <div>
-            <label className="label" htmlFor="job-reqs">
-              Requirements <span className="text-text-xmuted font-normal">(one per line)</span>
-            </label>
-            <textarea id="job-reqs" name="requirements" rows={3} value={form.requirements}
-              onChange={handleChange}
-              placeholder={"Bachelor's degree in relevant field\n3+ years of experience"}
-              className="input resize-none font-mono text-xs" />
-          </div>
-
-          <div className="border-t border-border my-4 pt-4">
-            <h3 className="font-semibold text-text mb-3">Recruitment Timeline</h3>
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              <div>
-                <label className="label" htmlFor="job-mode">Hiring Mode</label>
-                <select id="job-mode" name="hiringMode" value={form.hiringMode}
-                  onChange={handleChange} className="input">
-                  <option value="ROLLING">Actively Hiring (Rolling)</option>
-                  <option value="DEADLINE">Fixed Deadline</option>
-                </select>
-              </div>
-              {form.hiringMode === 'DEADLINE' && (
-                <div>
-                  <label className="label" htmlFor="job-deadline">Last Date to Apply</label>
-                  <input id="job-deadline" type="date" name="lastDateToApply" value={form.lastDateToApply}
-                    onChange={handleChange} className="input" required />
+        {/* Form Content */}
+        <div className="flex-1 overflow-y-auto bg-surface-1">
+          {step === 1 ? (
+            <div className="p-6 space-y-6">
+              {error && (
+                <div className="flex items-center gap-2 p-3 bg-danger-light border border-danger/20 rounded-lg text-sm text-danger">
+                  <AlertCircle size={15} className="shrink-0" /> {error}
                 </div>
               )}
-            </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="label" htmlFor="job-int-date">Interview Date</label>
-                <input id="job-int-date" type="date" name="interviewDate" value={form.interviewDate}
-                  onChange={handleChange} className="input" />
-              </div>
-              <div>
-                <label className="label" htmlFor="job-int-venue">Interview Venue</label>
-                <input id="job-int-venue" name="interviewVenue" value={form.interviewVenue}
-                  onChange={handleChange} placeholder="e.g. Virtual, HQ Office" className="input" />
-              </div>
-            </div>
-          </div>
-          <div className="border-t border-border my-4 pt-4">
-            <h3 className="font-semibold text-text mb-1">Application Form Fields</h3>
-            <p className="text-xs text-text-muted mb-3">Select the information applicants must provide. Name and Email are always required.</p>
-            <div className="grid grid-cols-2 gap-y-2 gap-x-4 bg-surface-2 p-3 rounded-lg border border-border">
-              {KNOWN_APPLICATION_FIELDS.map(f => (
-                <label key={f.id} className="flex items-center gap-2 cursor-pointer group">
-                  <div className="relative flex items-center shrink-0">
-                    <input
-                      type="checkbox"
-                      checked={form.applicationFields.includes(f.id)}
-                      onChange={(e) => {
-                        if (e.target.checked) setForm({ ...form, applicationFields: [...form.applicationFields, f.id] });
-                        else setForm({ ...form, applicationFields: form.applicationFields.filter(id => id !== f.id) });
-                      }}
-                      className="sr-only"
-                    />
-                    <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${
-                      form.applicationFields.includes(f.id) ? 'bg-accent border-accent' : 'bg-white border-border group-hover:border-accent'
-                    }`}>
-                      {form.applicationFields.includes(f.id) && <CheckCircle2 size={10} className="text-white" strokeWidth={3} />}
-                    </div>
+              <div className="space-y-4">
+                <div>
+                  <label className="label" htmlFor="job-title">Job title <span className="text-danger">*</span></label>
+                  <input ref={firstRef} id="job-title" name="title" required value={form.title}
+                    onChange={handleChange} placeholder="e.g. Senior Software Engineer" className="input" />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="label" htmlFor="job-dept">Department <span className="text-danger">*</span></label>
+                    <select id="job-dept" name="department" required value={form.department}
+                      onChange={handleChange} className="input">
+                      <option value="">Select…</option>
+                      {DEPARTMENTS.map(d => <option key={d} value={d}>{d}</option>)}
+                    </select>
                   </div>
-                  <span className="text-xs text-text-2 group-hover:text-text transition-colors">{f.label}</span>
-                </label>
-              ))}
-            </div>
-          </div>
+                  <div>
+                    <label className="label" htmlFor="job-location">Location</label>
+                    <input id="job-location" name="location" value={form.location}
+                      onChange={handleChange} placeholder="e.g. Remote, HQ" className="input" />
+                  </div>
+                </div>
 
-          <div className="border-t border-border my-4 pt-4">
-            <h3 className="font-semibold text-text mb-1">Visibility</h3>
-            <p className="text-xs text-text-muted mb-3">Choose where this job listing should be visible.</p>
-            <label className="flex items-center gap-3 p-3 bg-surface-2 rounded-xl border border-border cursor-pointer group hover:border-accent transition-colors">
-              <div className="relative flex items-center shrink-0">
-                <input
-                  type="checkbox"
-                  checked={form.showOnHome}
-                  onChange={(e) => setForm({ ...form, showOnHome: e.target.checked })}
-                  className="sr-only"
-                />
-                <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
-                  form.showOnHome ? 'bg-accent border-accent' : 'bg-white border-border group-hover:border-accent'
-                }`}>
-                  {form.showOnHome && <CheckCircle2 size={12} className="text-white" strokeWidth={3} />}
+                <div>
+                  <label className="label" htmlFor="job-salary">Salary / Compensation</label>
+                  <input id="job-salary" name="salary" value={form.salary}
+                    onChange={handleChange} placeholder="e.g. 80k – 100k" className="input" />
+                </div>
+
+                <div>
+                  <label className="label" htmlFor="job-desc">Description <span className="text-danger">*</span></label>
+                  <textarea id="job-desc" name="description" required rows={4} value={form.description}
+                    onChange={handleChange}
+                    placeholder="Describe the role..."
+                    className="input resize-none" />
+                </div>
+
+                <div>
+                  <label className="label" htmlFor="job-reqs">Requirements <span className="text-text-xmuted font-normal">(one per line)</span></label>
+                  <textarea id="job-reqs" name="requirements" rows={3} value={form.requirements}
+                    onChange={handleChange}
+                    placeholder={"Bachelor's degree\n3+ years experience"}
+                    className="input resize-none font-mono text-xs" />
+                </div>
+
+                <div className="pt-4 border-t border-border">
+                  <h3 className="text-sm font-semibold text-text mb-4">Hiring Timeline</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="label" htmlFor="job-mode">Hiring Mode</label>
+                      <select id="job-mode" name="hiringMode" value={form.hiringMode}
+                        onChange={handleChange} className="input">
+                        <option value="ROLLING">Actively Hiring (Rolling)</option>
+                        <option value="DEADLINE">Fixed Deadline</option>
+                      </select>
+                    </div>
+                    {form.hiringMode === 'DEADLINE' && (
+                      <div>
+                        <label className="label" htmlFor="job-deadline">Deadline</label>
+                        <input id="job-deadline" type="date" name="lastDateToApply" value={form.lastDateToApply}
+                          onChange={handleChange} className="input" required />
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-border">
+                  <h3 className="text-sm font-semibold text-text mb-4">Visibility</h3>
+                  <label className="flex items-center gap-3 p-3 bg-white rounded-xl border border-border cursor-pointer hover:border-accent transition-colors">
+                    <input type="checkbox" checked={form.showOnHome} onChange={(e) => setForm({ ...form, showOnHome: e.target.checked })} className="w-4 h-4 rounded text-accent" />
+                    <div>
+                      <p className="text-xs font-semibold">Show on home screen</p>
+                      <p className="text-[10px] text-text-muted">Visible to all visitors on the landing page.</p>
+                    </div>
+                  </label>
                 </div>
               </div>
-              <div>
-                <p className="text-xs font-semibold text-text">Show on main website home screen</p>
-                <p className="text-[10px] text-text-muted">If unchecked, this job will only appear on your company profile page.</p>
+            </div>
+          ) : (
+            <div className="p-6 space-y-8 bg-surface-2">
+              <div className="text-center max-w-md mx-auto">
+                <h3 className="text-lg font-bold text-text mb-1">Customize Application Form</h3>
+                <p className="text-xs text-text-muted">Toggle the fields you want to collect from candidates. This is a preview of what they will see.</p>
               </div>
-            </label>
-          </div>
-        </form>
+
+              {/* Form Preview */}
+              <div className="space-y-6 max-w-lg mx-auto">
+                {/* Section: Personal Info */}
+                <div className="bg-white rounded-xl border border-border overflow-hidden shadow-sm">
+                  <div className="px-4 py-3 bg-surface-1 border-b border-border flex justify-between items-center">
+                    <span className="text-xs font-bold uppercase tracking-wider text-text-muted">Personal Information</span>
+                    <span className="text-[10px] bg-accent/10 text-accent px-2 py-0.5 rounded-full font-medium">Core Section</span>
+                  </div>
+                  <div className="p-4 space-y-4">
+                    {/* Fixed fields */}
+                    <div className="grid grid-cols-2 gap-4 opacity-50 grayscale-[0.5]">
+                      <div className="space-y-1">
+                        <div className="h-3 w-16 bg-surface-3 rounded" />
+                        <div className="h-9 bg-surface-2 rounded border border-border" />
+                      </div>
+                      <div className="space-y-1">
+                        <div className="h-3 w-20 bg-surface-3 rounded" />
+                        <div className="h-9 bg-surface-2 rounded border border-border" />
+                      </div>
+                    </div>
+
+                    {/* Toggleable fields */}
+                    <div className="grid grid-cols-1 gap-3 pt-2">
+                      {[
+                        { id: 'collectPhone', label: 'Phone Number' },
+                        { id: 'collectDOB', label: 'Date of Birth' },
+                        { id: 'collectGender', label: 'Gender' },
+                        { id: 'collectCategory', label: 'Category' },
+                        { id: 'collectNationality', label: 'Nationality' },
+                        { id: 'collectEthnicity', label: 'Ethnicity' },
+                        { id: 'collectReligion', label: 'Religion' },
+                        { id: 'collectMaritalStatus', label: 'Marital Status' },
+                        { id: 'collectAddress', label: 'Residential Address' },
+                      ].map(item => {
+                        const isChecked = form.applicationSettings[item.id];
+                        
+                        return (
+                          <label key={item.id} className={`flex items-center justify-between p-3 rounded-lg border transition-all cursor-pointer ${
+                            isChecked ? 'bg-accent/5 border-accent/20' : 'bg-surface-1 border-border/50 grayscale opacity-60'
+                          }`}>
+                            <div className="flex items-center gap-3">
+                              <input 
+                                type="checkbox" 
+                                checked={isChecked} 
+                                onChange={(e) => {
+                                  setForm({ ...form, applicationSettings: { ...form.applicationSettings, [item.id]: e.target.checked } });
+                                }}
+                                className="w-4 h-4 rounded text-accent"
+                              />
+                              <span className="text-sm font-medium">{item.label}</span>
+                            </div>
+                            <div className={`h-6 w-24 rounded border border-dashed flex items-center justify-center ${isChecked ? 'border-accent/30' : 'border-border'}`}>
+                              <div className={`h-1.5 w-16 rounded-full ${isChecked ? 'bg-accent/20' : 'bg-surface-3'}`} />
+                            </div>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section: Family Info */}
+                <div className={`bg-white rounded-xl border transition-all overflow-hidden shadow-sm ${form.applicationSettings.collectFamilyInfo ? 'border-accent/30 opacity-100' : 'border-border opacity-60 grayscale'}`}>
+                   <div className="px-4 py-3 bg-surface-1 border-b border-border flex justify-between items-center">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        checked={form.applicationSettings.collectFamilyInfo}
+                        onChange={(e) => setForm({ ...form, applicationSettings: { ...form.applicationSettings, collectFamilyInfo: e.target.checked } })}
+                        className="w-4 h-4 rounded text-accent"
+                      />
+                      <span className="text-xs font-bold uppercase tracking-wider text-text-muted">Family Information</span>
+                    </label>
+                  </div>
+                  {form.applicationSettings.collectFamilyInfo && (
+                    <div className="p-4 grid grid-cols-2 gap-4 animate-fade-down">
+                       <div className="h-8 bg-surface-2 rounded border border-border" />
+                       <div className="h-8 bg-surface-2 rounded border border-border" />
+                       <div className="h-8 bg-surface-2 rounded border border-border" />
+                       <div className="h-8 bg-surface-2 rounded border border-border" />
+                    </div>
+                  )}
+                </div>
+
+                {/* Section: Education & Experience */}
+                <div className="bg-white rounded-xl border border-border overflow-hidden shadow-sm">
+                  <div className="px-4 py-3 bg-surface-1 border-b border-border">
+                    <span className="text-xs font-bold uppercase tracking-wider text-text-muted">Education & Experience</span>
+                  </div>
+                  <div className="p-4 space-y-3">
+                    {[
+                      { id: 'collectEducation', label: 'Education History' },
+                      { id: 'collectExperience', label: 'Work Experience' },
+                      { id: 'collectReference', label: 'Professional References' },
+                      { id: 'collectLanguages', label: 'Languages Known' },
+                    ].map(item => {
+                      const isChecked = form.applicationSettings[item.id];
+                      
+                      return (
+                        <label key={item.id} className={`flex items-center justify-between p-3 rounded-lg border transition-all cursor-pointer ${
+                          isChecked ? 'bg-accent/5 border-accent/20' : 'bg-surface-1 border-border/50 grayscale opacity-60'
+                        }`}>
+                          <div className="flex items-center gap-3">
+                            <input 
+                              type="checkbox" 
+                              checked={isChecked} 
+                              onChange={(e) => {
+                                setForm({ ...form, applicationSettings: { ...form.applicationSettings, [item.id]: e.target.checked } });
+                              }}
+                              className="w-4 h-4 rounded text-accent"
+                            />
+                            <span className="text-sm font-medium">{item.label}</span>
+                          </div>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Section: Hobbies */}
+                 <div className="bg-white rounded-xl border border-border overflow-hidden shadow-sm">
+                  <div className="px-4 py-3 bg-surface-1 border-b border-border">
+                    <span className="text-xs font-bold uppercase tracking-wider text-text-muted">Hobbies & Interests</span>
+                  </div>
+                  <div className="p-4 space-y-3">
+                    {[
+                      { id: 'collectSports', label: 'Sports Interest', type: 'setting' },
+                      { id: 'collectMusic', label: 'Music Instruments', type: 'setting' },
+                      { id: 'collectArts', label: 'Performing Arts', type: 'setting' },
+                    ].map(item => {
+                      const isChecked = form.applicationSettings[item.id];
+                      return (
+                        <label key={item.id} className={`flex items-center justify-between p-3 rounded-lg border transition-all cursor-pointer ${
+                          isChecked ? 'bg-accent/5 border-accent/20' : 'bg-surface-1 border-border/50 grayscale opacity-60'
+                        }`}>
+                          <div className="flex items-center gap-3">
+                            <input 
+                              type="checkbox" 
+                              checked={isChecked} 
+                              onChange={(e) => setForm({ ...form, applicationSettings: { ...form.applicationSettings, [item.id]: e.target.checked } })}
+                              className="w-4 h-4 rounded text-accent"
+                            />
+                            <span className="text-sm font-medium">{item.label}</span>
+                          </div>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border bg-surface-2">
-          <button type="button" onClick={onClose} className="btn-outline">Cancel</button>
-          <button
-            onClick={handleSubmit}
-            disabled={saving}
-            className="btn-primary disabled:opacity-60"
-          >
-            {saving ? <><Loader2 size={15} className="animate-spin" /> Posting…</> : <><CheckCircle2 size={15} /> Post listing</>}
-          </button>
+        <div className="px-6 py-4 border-t border-border bg-white flex items-center justify-between sticky bottom-0 z-10">
+          <div className="flex gap-2">
+            {step === 2 && (
+              <button type="button" onClick={() => setStep(1)} className="btn-ghost text-sm">
+                Back to Details
+              </button>
+            )}
+            <button type="button" onClick={onClose} className="btn-ghost text-sm text-danger hover:bg-danger-light">Cancel</button>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            {step === 1 ? (
+              <button
+                type="button"
+                onClick={() => {
+                  if (form.title && form.department && form.description) setStep(2);
+                  else setError('Please fill in all required fields marked with *');
+                }}
+                className="btn-primary"
+              >
+                Next: Form Configuration <ChevronRight size={15} />
+              </button>
+            ) : (
+              <button
+                onClick={handleSubmit}
+                disabled={saving}
+                className="btn-primary min-w-[140px]"
+              >
+                {saving ? <><Loader2 size={15} className="animate-spin" /> Posting…</> : <><CheckCircle2 size={15} /> Post Job Listing</>}
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>

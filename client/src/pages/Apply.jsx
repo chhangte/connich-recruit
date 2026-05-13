@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
-import { CheckCircle2, Building2, Briefcase, Info, ChevronDown, Plus, Trash2 } from 'lucide-react';
+import { CheckCircle2, Building2, Briefcase, Info, ChevronDown, Plus, Trash2, PlusCircle, X } from 'lucide-react';
 import axios from 'axios';
 import { useCompany } from '../context/CompanyContext';
 import CompanyNavbar from '../components/CompanyNavbar';
@@ -241,7 +241,22 @@ const Apply = ({ user }) => {
     }
   };
 
-  const hasField = (f) => !job?.applicationFields || job.applicationFields.length === 0 || job.applicationFields.includes(f);
+  const getSetting = (name, legacyKey = null) => {
+    // 1. Job-level overrides (new object structure)
+    if (job?.applicationSettings && job.applicationSettings[name] !== undefined) {
+      return job.applicationSettings[name];
+    }
+    // 2. Job-level overrides (legacy array structure)
+    if (legacyKey && job?.applicationFields && job.applicationFields.length > 0) {
+      return job.applicationFields.includes(legacyKey);
+    }
+    // 3. Company-level defaults
+    if (company?.applicationSettings && company.applicationSettings[name] !== undefined) {
+      return company.applicationSettings[name];
+    }
+    // 4. Global default
+    return true;
+  };
 
   if (jobLoading) return (
     <div className="min-h-screen flex items-center justify-center">
@@ -364,13 +379,13 @@ const Apply = ({ user }) => {
                   className={`${inputCls} ${user ? 'bg-surface-2 text-text-muted cursor-not-allowed' : ''}`}
                 />
               </Field>
-              {hasField('phone') && (
+              {getSetting('collectPhone', 'phone') && (
                 <Field label="Phone Number" required>
                   <input type="tel" required value={form.phone} onChange={set('phone')}
                     placeholder="+91 98765 43210" className={inputCls} />
                 </Field>
               )}
-              {hasField('dob') && (
+              {getSetting('collectDOB', 'dob') && (
                 <Field label="Date of Birth" required hint="DD-MM-YYYY">
                   <input type="text" required value={form.dob} onChange={handleDOBChange}
                     placeholder="DD-MM-YYYY" maxLength={10}
@@ -378,7 +393,7 @@ const Apply = ({ user }) => {
                 </Field>
               )}
 
-              {(company?.applicationSettings?.collectGender ?? true) && (
+              {getSetting('collectGender') && (
                 <Field label="Gender" required>
                   <div className="relative">
                     <select required value={form.gender} onChange={set('gender')} className={selectCls}>
@@ -392,7 +407,7 @@ const Apply = ({ user }) => {
                 </Field>
               )}
 
-              {(company?.applicationSettings?.collectCategory ?? true) && (
+              {getSetting('collectCategory') && (
                 <Field label="Category" required>
                   <div className="relative">
                     <select required value={form.category} onChange={set('category')} className={selectCls}>
@@ -404,14 +419,14 @@ const Apply = ({ user }) => {
                 </Field>
               )}
 
-              {(company?.applicationSettings?.collectNationality ?? true) && (
+              {getSetting('collectNationality') && (
                 <Field label="Nationality" required>
                   <input type="text" required value={form.nationality} onChange={set('nationality')}
                     placeholder="e.g. Indian" className={inputCls} />
                 </Field>
               )}
 
-              {(company?.applicationSettings?.collectEthnicity ?? true) && (
+              {getSetting('collectEthnicity') && (
                 <Field label="Ethnicity" required>
                   <div className="relative">
                     <select required value={form.ethnicity} onChange={set('ethnicity')} className={selectCls}>
@@ -431,7 +446,7 @@ const Apply = ({ user }) => {
                 </Field>
               )}
 
-              {(company?.applicationSettings?.collectReligion ?? true) && (
+              {getSetting('collectReligion') && (
                 <Field label="Religion" required>
                   <div className="relative">
                     <select required value={form.religion} onChange={set('religion')} className={selectCls}>
@@ -451,7 +466,7 @@ const Apply = ({ user }) => {
                 </Field>
               )}
 
-              {hasField('maritalStatus') && (company?.applicationSettings?.collectMaritalStatus ?? true) && (
+              {getSetting('collectMaritalStatus', 'maritalStatus') && (
                 <Field label="Marital Status" required>
                   <div className="relative">
                     <select required value={form.maritalStatus}
@@ -468,7 +483,7 @@ const Apply = ({ user }) => {
             </div>
 
             {/* Address */}
-            {hasField('address') && (
+            {getSetting('collectAddress', 'address') && (
               <div className="space-y-4">
                 <Section title="Residential Address" />
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
@@ -510,8 +525,7 @@ const Apply = ({ user }) => {
             )}
           </div>
 
-          {/* ── 2. Family Information ── */}
-          {hasField('familyInfo') && (company?.applicationSettings?.collectFamilyInfo ?? true) && (
+            {getSetting('collectFamilyInfo', 'familyInfo') && (
             <div className="bg-white rounded-xl border border-border p-6 space-y-5">
               <Section title="Family Information" />
 
@@ -537,7 +551,7 @@ const Apply = ({ user }) => {
           )}
 
           {/* ── 3. Educational Background ── */}
-          {hasField('educationHistory') && (
+          {getSetting('collectEducation', 'educationHistory') && (
             <div className="bg-white rounded-xl border border-border p-6 space-y-5">
               <Section
                 title="Educational Background"
@@ -692,7 +706,7 @@ const Apply = ({ user }) => {
             </div>
           )}
 
-          {(hasField('experience') || hasField('reference')) && (
+          {(getSetting('collectExperience', 'experience') || getSetting('collectReference', 'reference')) && (
             <div className="bg-white rounded-xl border border-border p-6 space-y-5">
               <Section
                 title="Work Experience"
@@ -838,7 +852,7 @@ const Apply = ({ user }) => {
           )}
 
           {/* ── 5. Languages Known ── */}
-          {(company?.applicationSettings?.collectLanguages ?? true) && (
+          {getSetting('collectLanguages') && (
             <div className="bg-white rounded-xl border border-border p-6 space-y-5">
               <Section title="Languages Known" />
               <div className="space-y-4">
@@ -897,14 +911,14 @@ const Apply = ({ user }) => {
           )}
 
           {/* ── 6. Extracurricular Interests ── */}
-          {((company?.applicationSettings?.collectSports ?? true) || 
-             (company?.applicationSettings?.collectMusic ?? true) || 
-             (company?.applicationSettings?.collectArts ?? true)) && (
+          {(getSetting('collectSports') || 
+             getSetting('collectMusic') || 
+             getSetting('collectArts')) && (
             <div className="bg-white rounded-xl border border-border p-6 space-y-6">
               <Section title="Extracurricular Interests" subtitle="Select interests and provide optional details like certifications or achievements." />
               
               <div className="space-y-6">
-                {(company?.applicationSettings?.collectSports ?? true) && (
+                {getSetting('collectSports') && (
                   <div className="space-y-4">
                     <Field label="Sports Interest">
                       <div className="relative">
@@ -933,7 +947,7 @@ const Apply = ({ user }) => {
                   </div>
                 )}
 
-                {(company?.applicationSettings?.collectMusic ?? true) && (
+                {getSetting('collectMusic') && (
                   <div className="space-y-4 pt-4 border-t border-border/50">
                     <Field label="Musical Instruments">
                       <div className="relative">
@@ -962,7 +976,7 @@ const Apply = ({ user }) => {
                   </div>
                 )}
 
-                {(company?.applicationSettings?.collectArts ?? true) && (
+                {getSetting('collectArts') && (
                   <div className="space-y-4 pt-4 border-t border-border/50">
                     <Field label="Fine / Performing Arts">
                       <div className="relative">

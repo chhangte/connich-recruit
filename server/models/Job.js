@@ -45,9 +45,24 @@ const JobSchema = new mongoose.Schema({
         type: [String],
         default: ['phone', 'dob', 'address', 'maritalStatus', 'familyInfo', 'educationHistory', 'experience'],
     },
-    showOnHome: {
-        type: Boolean,
-        default: true
+    applicationSettings: {
+        collectGender:         { type: Boolean, default: true },
+        collectNationality:    { type: Boolean, default: true },
+        collectEthnicity:      { type: Boolean, default: true },
+        collectReligion:       { type: Boolean, default: true },
+        collectCategory:       { type: Boolean, default: true },
+        collectMaritalStatus:  { type: Boolean, default: true },
+        collectFamilyInfo:     { type: Boolean, default: true },
+        collectPhone:          { type: Boolean, default: true },
+        collectDOB:            { type: Boolean, default: true },
+        collectAddress:        { type: Boolean, default: true },
+        collectEducation:      { type: Boolean, default: true },
+        collectExperience:     { type: Boolean, default: true },
+        collectReference:      { type: Boolean, default: true },
+        collectLanguages:      { type: Boolean, default: true },
+        collectSports:         { type: Boolean, default: true },
+        collectMusic:          { type: Boolean, default: true },
+        collectArts:           { type: Boolean, default: true },
     },
     createdAt: { type: Date, default: Date.now }
 });
