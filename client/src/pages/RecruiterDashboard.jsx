@@ -456,7 +456,7 @@ const generateBioData = async (app, jobTitle, companyName) => {
     const val = (v, fallback = '—') => v || fallback;
 
     const htmlContent = `
-<div style="font-family: 'Inter', sans-serif; font-size: 10pt; color: #0f172a; line-height: 1.5; padding: 20mm; background: white;">
+<div style="font-family: 'Inter', sans-serif; font-size: 10pt; color: #0f172a; line-height: 1.5; padding: 0; background: white;">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #0f172a; }
@@ -581,7 +581,7 @@ const generateBioData = async (app, jobTitle, companyName) => {
     document.body.appendChild(element);
 
     const opt = {
-      margin: 10,
+      margin: 20.32, // 0.8 inches in mm
       filename: `BioData_${name.replace(/\s+/g, '_')}_${appId}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true, logging: false },
