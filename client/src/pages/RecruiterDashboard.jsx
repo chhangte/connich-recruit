@@ -441,14 +441,22 @@ const StatusDropdown = ({ appId, current, onChange }) => {
 
 /* ── Bio-Data PDF Generator ─────────────────── */
 const generateBioData = (app, jobTitle, companyName) => {
-  const d = app.details || {};
-  const name = d.name || app.applicant?.name || 'Applicant Name';
-  const email = d.email || app.applicant?.email || '';
-  const appliedDate = app.appliedAt
-    ? new Date(app.appliedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })
-    : new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+  if (!app) return;
 
-  const html = `<!DOCTYPE html>
+  try {
+    const d = app.details || {};
+    const name = d.name || app.applicant?.name || 'Applicant Name';
+    const email = d.email || app.applicant?.email || '';
+    const appliedDate = app.appliedAt
+      ? new Date(app.appliedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })
+      : new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+
+    const appId = String(app._id || '').slice(-8).toUpperCase();
+
+    // Helper to handle empty/null values in template
+    const val = (v, fallback = '—') => v || fallback;
+
+    const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -616,10 +624,10 @@ const generateBioData = (app, jobTitle, companyName) => {
 <body>
   <div class="page-header">
     <div class="header-info">
-      <div class="meta">Candidate's Bio-Data Sheet - ${companyName || 'Connich Recruit'}</div>
-      <h1>${name}</h1>
-      <div class="job-title">Position: ${jobTitle}</div>
-      <div class="meta">Applied on ${appliedDate} · ID: ${app._id.slice(-8).toUpperCase()}</div>
+      <div class="meta">Candidate's Bio-Data Sheet - ${val(companyName, 'Connich Recruit')}</div>
+      <h1>${val(name)}</h1>
+      <div class="job-title">Position: ${val(jobTitle)}</div>
+      <div class="meta">Applied on ${appliedDate} · ID: ${appId}</div>
     </div>
     <div class="photo-placeholder">
       Candidate Photo
@@ -631,47 +639,47 @@ const generateBioData = (app, jobTitle, companyName) => {
     <div class="grid">
       <div class="data-item">
         <span class="data-label">Full Name</span>
-        <span class="data-value">${name}</span>
+        <span class="data-value">${val(name)}</span>
       </div>
       <div class="data-item">
         <span class="data-label">Email Address</span>
-        <span class="data-value">${email}</span>
+        <span class="data-value">${val(email)}</span>
       </div>
       <div class="data-item">
         <span class="data-label">Phone Number</span>
-        <span class="data-value">${d.phone || '—'}</span>
+        <span class="data-value">${val(d.phone)}</span>
       </div>
       <div class="data-item">
         <span class="data-label">Date of Birth</span>
-        <span class="data-value">${d.dob || '—'}</span>
+        <span class="data-value">${val(d.dob)}</span>
       </div>
       <div class="data-item">
         <span class="data-label">Gender</span>
-        <span class="data-value">${d.gender || '—'}</span>
+        <span class="data-value">${val(d.gender)}</span>
       </div>
       <div class="data-item">
         <span class="data-label">Marital Status</span>
-        <span class="data-value">${d.maritalStatus || '—'}</span>
+        <span class="data-value">${val(d.maritalStatus)}</span>
       </div>
       <div class="data-item">
         <span class="data-label">Nationality</span>
-        <span class="data-value">${d.nationality || '—'}</span>
+        <span class="data-value">${val(d.nationality)}</span>
       </div>
       <div class="data-item">
         <span class="data-label">Category</span>
-        <span class="data-value">${d.category || '—'}</span>
+        <span class="data-value">${val(d.category)}</span>
       </div>
       <div class="data-item">
         <span class="data-label">Religion</span>
-        <span class="data-value">${d.religion || '—'}</span>
+        <span class="data-value">${val(d.religion)}</span>
       </div>
       <div class="data-item">
         <span class="data-label">Ethnicity</span>
-        <span class="data-value">${d.ethnicity || '—'}</span>
+        <span class="data-value">${val(d.ethnicity)}</span>
       </div>
       <div class="data-item full-width">
         <span class="data-label">Permanent Address</span>
-        <span class="data-value">${d.address || '—'}</span>
+        <span class="data-value">${val(d.address)}</span>
       </div>
     </div>
   </div>
@@ -681,19 +689,19 @@ const generateBioData = (app, jobTitle, companyName) => {
     <div class="grid">
       <div class="data-item">
         <span class="data-label">Father's Name</span>
-        <span class="data-value">${d.fatherName}</span>
+        <span class="data-value">${val(d.fatherName)}</span>
       </div>
       <div class="data-item">
         <span class="data-label">Father's Contact</span>
-        <span class="data-value">${d.fatherPhone}</span>
+        <span class="data-value">${val(d.fatherPhone)}</span>
       </div>
       <div class="data-item">
         <span class="data-label">Mother's Name</span>
-        <span class="data-value">${d.motherName}</span>
+        <span class="data-value">${val(d.motherName)}</span>
       </div>
       <div class="data-item">
         <span class="data-label">Mother's Contact</span>
-        <span class="data-value">${d.motherPhone}</span>
+        <span class="data-value">${val(d.motherPhone)}</span>
       </div>
     </div>
   </div>
@@ -701,7 +709,7 @@ const generateBioData = (app, jobTitle, companyName) => {
   <div class="section">
     <h2 class="section-title">Educational Background</h2>
     
-    ${Array.isArray(d.postgraduates) && d.postgraduates.length > 0 ? d.postgraduates.map(pg => `
+    ${Array.isArray(d.postgraduates) && d.postgraduates.length > 0 ? d.postgraduates.filter(pg => pg.institute || pg.course).map(pg => `
       <div class="education-item">
         <div class="item-header">
           <span class="item-title">${pg.institute}</span>
@@ -740,31 +748,31 @@ const generateBioData = (app, jobTitle, companyName) => {
       ` : ''}
       <div class="data-item">
         <span class="data-label">High School (Class 10)</span>
-        <span class="data-value">${d.highSchool}</span>
+        <span class="data-value">${val(d.highSchool)}</span>
       </div>
       <div class="data-item">
         <span class="data-label">Middle School</span>
-        <span class="data-value">${d.middleSchool}</span>
+        <span class="data-value">${val(d.middleSchool)}</span>
       </div>
       <div class="data-item">
         <span class="data-label">Primary School</span>
-        <span class="data-value">${d.primarySchool}</span>
+        <span class="data-value">${val(d.primarySchool)}</span>
       </div>
     </div>
   </div>
 
-  ${!d.isFresher && Array.isArray(d.experiences) && d.experiences.length > 0 ? `
+  ${!d.isFresher && Array.isArray(d.experiences) && d.experiences.some(exp => exp.jobTitle) ? `
     <div class="section">
       <h2 class="section-title">Work Experience</h2>
-      ${d.experiences.map(exp => `
+      ${d.experiences.filter(exp => exp.jobTitle).map(exp => `
         <div class="experience-item">
           <div class="item-header">
             <span class="item-title">${exp.jobTitle}</span>
             <span class="item-meta">${exp.fromMonth} ${exp.fromYear} — ${exp.toMonth} ${exp.toYear}</span>
           </div>
-          <div class="data-value" style="font-size: 9pt; margin-top: 4px;">${exp.description}</div>
+          <div class="data-value" style="font-size: 9pt; margin-top: 4px;">${val(exp.description)}</div>
           ${exp.referenceName ? `
-            <div style="margin-top: 8px; border-top: 1px solid #eee; pt: 4px;">
+            <div style="margin-top: 8px; border-top: 1px solid #eee; padding-top: 4px;">
               <span class="data-label" style="font-size: 7pt;">Reference:</span>
               <span class="data-value" style="font-size: 8pt;">${exp.referenceName} (${exp.referencePhone})</span>
             </div>
@@ -780,7 +788,7 @@ const generateBioData = (app, jobTitle, companyName) => {
       <div class="data-item full-width">
         <span class="data-label">Languages Known</span>
         <div class="badges">
-          ${Array.isArray(d.languages) && d.languages.length > 0 ? d.languages.map(l => `<span class="badge">${l.name} (${l.proficiency})</span>`).join('') : '<span class="data-value">—</span>'}
+          ${Array.isArray(d.languages) && d.languages.filter(l => l.name).length > 0 ? d.languages.filter(l => l.name).map(l => `<span class="badge">${l.name} (${l.proficiency})</span>`).join('') : '<span class="data-value">—</span>'}
         </div>
       </div>
       ${d.sports?.name ? `
@@ -821,11 +829,21 @@ const generateBioData = (app, jobTitle, companyName) => {
 </body>
 </html>`;
 
-  const win = window.open('', '_blank', 'width=900,height=1000');
-  win.document.write(html);
-  win.document.close();
-  win.focus();
-  setTimeout(() => { win.print(); }, 800);
+    const win = window.open('', '_blank', 'width=900,height=1000');
+    if (!win) {
+      alert('Popup blocked! Please allow popups for this site to download the Bio-Data sheet.');
+      return;
+    }
+    win.document.write(html);
+    win.document.close();
+    win.focus();
+    setTimeout(() => { 
+      if (!win.closed) win.print(); 
+    }, 800);
+  } catch (err) {
+    console.error('Error generating Bio-Data PDF:', err);
+    alert('An error occurred while generating the Bio-Data sheet. Please check the console for details.');
+  }
 };
 
 /* ── View Applicant Modal ───────────────────── */
@@ -871,7 +889,7 @@ const ViewApplicantModal = ({ app, jobTitle, companyName, onClose }) => {
           </div>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => generateBioData(app, jobTitle)}
+              onClick={() => generateBioData(app, jobTitle, companyName)}
               className="btn-outline py-1.5 px-3 text-xs flex items-center gap-1.5"
               title="Download Bio-Data Sheet"
             >
@@ -1693,7 +1711,7 @@ const RecruiterDashboard = ({ user, setUser }) => {
                                       <FileText size={14} />
                                     </button>
                                     <button
-                                      onClick={() => generateBioData(app, activeJob?.title)}
+                                      onClick={() => generateBioData(app, activeJob?.title, user?.company?.name)}
                                       className="btn-ghost p-2 text-text-muted hover:text-accent"
                                       title="Download Bio-Data Sheet"
                                     >
