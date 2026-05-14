@@ -11,10 +11,13 @@ const Footer = () => {
           <div className="col-span-2 md:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-3 no-underline text-text hover:text-text">
               <img src="/logo.png" alt="Connich Careers" className="w-8 h-8 object-contain" />
-              <span className="font-semibold text-sm">Connich Careers</span>
+              <div className="flex items-baseline">
+                <span className="font-bold text-sm">Connich</span>
+                <span className="font-normal text-sm ml-0.5">Recruit</span>
+              </div>
             </Link>
             <p className="text-text-muted text-sm leading-relaxed">
-              Find your next opportunity at Connich. Empowering educators and professionals worldwide.
+              Find your next opportunity at Connich Recruit. Empowering educators and professionals worldwide.
             </p>
           </div>
 

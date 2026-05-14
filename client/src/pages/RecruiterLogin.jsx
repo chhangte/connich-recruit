@@ -57,8 +57,8 @@ const RecruiterLogin = ({ setUser }) => {
 
         <div className="relative z-10">
           <Link to="/" className="flex items-center gap-2 no-underline">
-            <img src="/logo.png" alt="Connich Careers" className="w-8 h-8 object-contain brightness-0 invert" />
-            <span className="font-semibold text-white">Connich Careers</span>
+            <img src="/logo.png" alt="Connich Recruit" className="w-8 h-8 object-contain brightness-0 invert" />
+            <span className="font-bold text-white">Connich</span><span className="font-normal text-white ml-1">Recruit</span>
           </Link>
         </div>
 
@@ -86,8 +86,8 @@ const RecruiterLogin = ({ setUser }) => {
       <div className="flex-1 flex flex-col justify-center items-center px-6 py-12 bg-white">
         {/* Mobile logo */}
         <div className="md:hidden mb-8 flex items-center gap-2">
-          <img src="/logo.png" alt="Connich Careers" className="w-8 h-8 object-contain" />
-          <span className="font-semibold">Recruiter Portal</span>
+          <img src="/logo.png" alt="Connich Recruit" className="w-8 h-8 object-contain" />
+          <span className="font-bold text-gray-900">Connich</span><span className="font-normal text-gray-900 ml-1">Recruit</span>
         </div>
 
         <div className="w-full max-w-sm animate-fade-up">

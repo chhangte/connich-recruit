@@ -33,7 +33,10 @@ const Navbar = ({ user, logout }) => {
         {/* Logo */}
           <Link to="/" className="flex items-center gap-2 no-underline text-text hover:text-text">
             <img src="/logo.png" alt="Connich Careers" className="w-8 h-8 object-contain" />
-            <span className="font-semibold">Connich Careers</span>
+            <div className="flex items-baseline">
+              <span className="font-bold">Connich</span>
+              <span className="font-normal ml-0.5">Recruit</span>
+            </div>
           </Link>
 
         {/* Desktop Nav */}

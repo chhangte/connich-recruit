@@ -33,7 +33,7 @@ const TenantFooter = () => {
               className="flex items-center gap-1.5 no-underline font-semibold text-gray-700 hover:text-gray-900 transition-colors"
             >
               <img src="/logo.png" alt="Connich Careers" className="w-5 h-5 object-contain" />
-              Connich Careers
+              Connich Recruit
             </Link>
           </div>
 

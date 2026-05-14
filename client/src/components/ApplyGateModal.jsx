@@ -35,7 +35,7 @@ const ApplyGateModal = ({ isOpen, onClose, jobId, company }) => {
         <div className="p-6 sm:p-10">
           {/* Header */}
           <div className="text-center sm:text-left mb-8">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Create an Account on Connich</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Create a Connich Recruit Account</h2>
             <p className="text-sm text-gray-500">
               Recommended for the best experience.
             </p>

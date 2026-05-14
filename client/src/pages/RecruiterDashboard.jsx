@@ -440,8 +440,7 @@ const StatusDropdown = ({ appId, current, onChange }) => {
 };
 
 /* ── Bio-Data PDF Generator ─────────────────── */
-/* ── Bio-Data PDF Generator ─────────────────── */
-const generateBioData = (app, jobTitle) => {
+const generateBioData = (app, jobTitle, companyName) => {
   const d = app.details || {};
   const name = d.name || app.applicant?.name || 'Applicant Name';
   const email = d.email || app.applicant?.email || '';
@@ -596,6 +595,17 @@ const generateBioData = (app, jobTitle) => {
       font-weight: 600;
     }
 
+    .system-footer {
+      margin-top: 60px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      font-size: 8pt;
+      color: var(--text-muted);
+    }
+    .brand-connich { font-weight: 700; color: var(--primary); }
+
     @media print {
       body { padding: 0; }
       .photo-placeholder { -webkit-print-color-adjust: exact; background-color: var(--bg-light) !important; }
@@ -606,9 +616,9 @@ const generateBioData = (app, jobTitle) => {
 <body>
   <div class="page-header">
     <div class="header-info">
-      <div class="meta">Bio-Data Sheet · Connich Careers</div>
+      <div class="meta">Candidate's Bio-Data Sheet - ${companyName || 'Connich Recruit'}</div>
       <h1>${name}</h1>
-      <div class="job-title">${jobTitle}</div>
+      <div class="job-title">Position: ${jobTitle}</div>
       <div class="meta">Applied on ${appliedDate} · ID: ${app._id.slice(-8).toUpperCase()}</div>
     </div>
     <div class="photo-placeholder">
@@ -691,7 +701,7 @@ const generateBioData = (app, jobTitle) => {
   <div class="section">
     <h2 class="section-title">Educational Background</h2>
     
-    ${d.postgraduates?.length > 0 ? d.postgraduates.map(pg => `
+    ${Array.isArray(d.postgraduates) && d.postgraduates.length > 0 ? d.postgraduates.map(pg => `
       <div class="education-item">
         <div class="item-header">
           <span class="item-title">${pg.institute}</span>
@@ -743,7 +753,7 @@ const generateBioData = (app, jobTitle) => {
     </div>
   </div>
 
-  ${!d.isFresher && d.experiences?.length > 0 ? `
+  ${!d.isFresher && Array.isArray(d.experiences) && d.experiences.length > 0 ? `
     <div class="section">
       <h2 class="section-title">Work Experience</h2>
       ${d.experiences.map(exp => `
@@ -770,7 +780,7 @@ const generateBioData = (app, jobTitle) => {
       <div class="data-item full-width">
         <span class="data-label">Languages Known</span>
         <div class="badges">
-          ${d.languages?.map(l => `<span class="badge">${l.name} (${l.proficiency})</span>`).join('') || '<span class="data-value">—</span>'}
+          ${Array.isArray(d.languages) && d.languages.length > 0 ? d.languages.map(l => `<span class="badge">${l.name} (${l.proficiency})</span>`).join('') : '<span class="data-value">—</span>'}
         </div>
       </div>
       ${d.sports?.name ? `
@@ -803,6 +813,11 @@ const generateBioData = (app, jobTitle) => {
       <div class="signature-line">Applicant Signature</div>
     </div>
   </div>
+
+  <div class="system-footer">
+    <span>Generated on ${new Date().toLocaleString('en-IN', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+    <span>Powered By <span class="brand-connich">Connich</span> Recruit</span>
+  </div>
 </body>
 </html>`;
 
@@ -814,7 +829,7 @@ const generateBioData = (app, jobTitle) => {
 };
 
 /* ── View Applicant Modal ───────────────────── */
-const ViewApplicantModal = ({ app, jobTitle, onClose }) => {
+const ViewApplicantModal = ({ app, jobTitle, companyName, onClose }) => {
   const [msg, setMsg] = useState('');
   const [sendingMsg, setSendingMsg] = useState(false);
 
@@ -1090,7 +1105,7 @@ const ViewApplicantModal = ({ app, jobTitle, onClose }) => {
         {/* Footer */}
         <div className="px-6 py-4 border-t border-border shrink-0 flex gap-3">
           <button
-            onClick={() => generateBioData(app, jobTitle)}
+            onClick={() => generateBioData(app, jobTitle, companyName)}
             className="btn-primary flex-1 justify-center"
           >
             <Printer size={15} /> Download Bio-Data Sheet
@@ -1446,6 +1461,7 @@ const RecruiterDashboard = ({ user, setUser }) => {
         <ViewApplicantModal
           app={viewApp}
           jobTitle={activeJob?.title}
+          companyName={user?.company?.name}
           onClose={() => setViewApp(null)}
         />
       )}
@@ -1726,7 +1742,7 @@ const RecruiterDashboard = ({ user, setUser }) => {
                                 <button onClick={() => setViewApp(app)} className="btn-ghost p-1.5" title="View">
                                   <FileText size={14} />
                                 </button>
-                                <button onClick={() => generateBioData(app, activeJob?.title)} className="btn-ghost p-1.5" title="Download">
+                                <button onClick={() => generateBioData(app, activeJob?.title, user?.company?.name)} className="btn-ghost p-1.5" title="Download">
                                   <Printer size={14} />
                                 </button>
                               </div>

@@ -58,7 +58,7 @@ const CompanyNavbar = () => {
             className="hidden sm:block text-xs px-2 py-0.5 rounded-full font-medium"
             style={{ background: `${primary}15`, color: primary }}
           >
-            Careers
+            Recruit
           </span>
         </Link>
 

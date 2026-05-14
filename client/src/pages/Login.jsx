@@ -89,8 +89,8 @@ const Login = ({ setUser }) => {
       <div className="flex-1 flex flex-col justify-center items-center px-6 py-12">
         {/* Mobile-only logo */}
         <div className="md:hidden mb-8 flex items-center gap-2">
-          <img src="/logo.png" alt="Connich Careers" className="w-8 h-8 object-contain" />
-          <span className="font-semibold">Connich Careers</span>
+          <img src="/logo.png" alt="Connich Recruit" className="w-8 h-8 object-contain" />
+          <span className="font-bold">Connich</span><span className="font-normal ml-1">Recruit</span>
         </div>
 
         <div className="w-full max-w-sm animate-fade-up">
