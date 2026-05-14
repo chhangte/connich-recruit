@@ -456,46 +456,45 @@ const generateBioData = async (app, jobTitle, companyName) => {
     const val = (v, fallback = '—') => v || fallback;
 
     const htmlContent = `
-<div style="font-family: 'Inter', sans-serif; font-size: 10pt; color: #000; line-height: 1.4; padding: 0; background: white;">
+<div style="font-family: 'Inter', sans-serif; font-size: 10pt; color: #000; line-height: 1.6; padding-bottom: 30px; background: white;">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     
     * { box-sizing: border-box; }
     
     .page-header { 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: flex-start; 
       margin-bottom: 25px; 
       padding-bottom: 15px; 
-      border-bottom: 2px solid #000; 
+      border-bottom: 1.5pt solid #000; 
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
     }
     
     .header-info h1 { 
-      font-size: 20pt; 
-      font-weight: 800; 
+      font-size: 18pt; 
+      font-weight: 700; 
       color: #000; 
       text-transform: uppercase; 
-      letter-spacing: -0.01em; 
-      margin-bottom: 2px; 
+      margin: 0 0 4px 0;
     }
     
     .header-info .job-title { 
       font-size: 11pt; 
-      font-weight: 700; 
-      color: #374151; 
-      margin-bottom: 6px; 
+      font-weight: 600; 
+      color: #000;
+      margin-bottom: 4px;
     }
     
     .header-info .meta { 
       font-size: 8.5pt; 
-      color: #6b7280; 
+      color: #444; 
     }
     
     .photo-placeholder { 
-      width: 90px; 
-      height: 110px; 
-      border: 1px solid #000; 
+      width: 85px; 
+      height: 105px; 
+      border: 1pt solid #000; 
       display: flex; 
       align-items: center; 
       justify-content: center; 
@@ -503,195 +502,187 @@ const generateBioData = async (app, jobTitle, companyName) => {
       font-size: 7pt; 
       color: #000; 
       font-weight: 600;
-      text-transform: uppercase;
     }
 
-    .section { margin-bottom: 20px; }
+    .section { margin-bottom: 25px; }
     
     .section-title { 
-      font-size: 9.5pt; 
+      font-size: 10pt; 
       font-weight: 800; 
       text-transform: uppercase; 
-      letter-spacing: 0.05em; 
       color: #000; 
-      margin-bottom: 10px; 
-      padding: 4px 8px; 
-      background: #f3f4f6;
-      border-left: 4px solid #000;
+      margin-bottom: 12px; 
     }
     
     .grid { 
       display: grid; 
       grid-template-columns: repeat(2, 1fr); 
-      gap: 10px 20px; 
-      padding: 0 8px;
+      gap: 10px 40px; 
+      padding-left: 5px;
     }
     
-    .data-item { display: flex; flex-direction: column; }
+    .data-item { display: flex; align-items: baseline; gap: 10px; }
     
     .data-label { 
-      font-size: 7.5pt; 
+      font-size: 8.5pt; 
       font-weight: 700; 
-      color: #4b5563; 
-      text-transform: uppercase; 
-      margin-bottom: 1px;
+      color: #000; 
+      width: 130px;
+      flex-shrink: 0;
     }
     
-    .data-value { font-size: 9.5pt; font-weight: 500; color: #000; }
+    .data-value { font-size: 10pt; font-weight: 400; color: #000; }
     
     .full-width { grid-column: span 2; }
     
     .list-item { 
-      margin-bottom: 8px; 
-      padding: 8px; 
-      border: 1px solid #e5e7eb;
-      background: #fff;
+      margin-bottom: 12px; 
+      padding-left: 5px;
     }
     
-    .item-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px; }
-    .item-title { font-weight: 700; font-size: 10pt; color: #000; }
-    .item-subtitle { font-weight: 600; color: #374151; font-size: 9pt; }
-    .item-meta { font-size: 8.5pt; color: #6b7280; font-weight: 500; }
+    .item-header { display: flex; justify-content: space-between; align-items: baseline; }
+    .item-title { font-weight: 700; font-size: 10.5pt; }
+    .item-meta { font-size: 8.5pt; font-weight: 500; color: #444; }
+    .item-subtitle { font-weight: 500; font-size: 10pt; margin-top: 2px; }
 
-    .badges { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 2px; }
+    .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 3px; }
     .badge { 
-      background: #f3f4f6; 
-      color: #000; 
-      font-size: 8pt; 
-      padding: 2px 8px; 
-      border: 1px solid #d1d5db;
-      font-weight: 600; 
+      font-size: 9pt; 
+      font-weight: 400;
     }
 
     .footer { 
-      margin-top: 35px; 
+      margin-top: 50px; 
       display: flex; 
       justify-content: space-between; 
       align-items: flex-end; 
-      font-size: 9pt;
-      padding: 0 8px;
+      font-size: 9.5pt;
+    }
+    
+    .signature-area { 
+      text-align: center;
     }
     
     .signature-line { 
-      width: 170px; 
-      border-top: 1px solid #000; 
-      text-align: center; 
-      padding-top: 5px; 
-      font-weight: 700; 
+      width: 200px; 
+      border-top: 1.5pt solid #000; 
+      margin-top: 60px;
+      padding-top: 6px; 
+      font-weight: 800; 
+      font-size: 8.5pt;
       text-transform: uppercase;
-      font-size: 8pt;
     }
 
     .system-footer { 
-      margin-top: 50px; 
-      padding-top: 8px; 
-      border-top: 1px solid #e5e7eb; 
+      margin-top: 100px; 
       display: flex; 
       justify-content: space-between; 
-      font-size: 7.5pt; 
-      color: #9ca3af; 
+      font-size: 8.5pt; 
+      color: #777; 
+      font-weight: 500;
+      padding-bottom: 10px;
     }
-    
-    .brand-connich { font-weight: 700; color: #4b5563; }
+    .brand { font-weight: 700; color: #333; }
   </style>
 
   <div class="page-header">
     <div class="header-info">
-      <div class="meta">Bio-Data Sheet — ${val(companyName, 'Connich Recruit')}</div>
+      <div class="meta">OFFICE INTERNAL USE — BIO-DATA SHEET</div>
       <h1>${val(name)}</h1>
-      <div class="job-title">Applied For: ${val(jobTitle)}</div>
-      <div class="meta">Submission Date: ${appliedDate} · App ID: ${appId}</div>
+      <div class="job-title">POSITION APPLIED: ${val(jobTitle).toUpperCase()}</div>
+      <div class="meta">APPLIED DATE: ${appliedDate} | ID: ${appId}</div>
     </div>
-    <div class="photo-placeholder">Paste Photograph Here</div>
+    <div class="photo-placeholder">PHOTO</div>
   </div>
 
   <div class="section">
-    <div class="section-title">Personal Information</div>
+    <div class="section-title">1. Personal Details</div>
     <div class="grid">
-      <div class="data-item"><span class="data-label">Full Name</span><span class="data-value">${val(name)}</span></div>
-      <div class="data-item"><span class="data-label">Email Address</span><span class="data-value">${val(email)}</span></div>
-      <div class="data-item"><span class="data-label">Phone Number</span><span class="data-value">${val(d.phone)}</span></div>
-      <div class="data-item"><span class="data-label">Date of Birth</span><span class="data-value">${val(d.dob)}</span></div>
-      <div class="data-item"><span class="data-label">Gender</span><span class="data-value">${val(d.gender)}</span></div>
-      <div class="data-item"><span class="data-label">Marital Status</span><span class="data-value">${val(d.maritalStatus)}</span></div>
-      <div class="data-item"><span class="data-label">Nationality</span><span class="data-value">${val(d.nationality)}</span></div>
-      <div class="data-item"><span class="data-label">Category</span><span class="data-value">${val(d.category)}</span></div>
-      <div class="data-item"><span class="data-label">Religion</span><span class="data-value">${val(d.religion)}</span></div>
-      <div class="data-item"><span class="data-label">Ethnicity</span><span class="data-value">${val(d.ethnicity)}</span></div>
-      <div class="data-item full-width"><span class="data-label">Permanent Address</span><span class="data-value">${val(d.address)}</span></div>
+      <div class="data-item"><span class="data-label">Full Name:</span><span class="data-value">${val(name)}</span></div>
+      <div class="data-item"><span class="data-label">Email:</span><span class="data-value">${val(email)}</span></div>
+      <div class="data-item"><span class="data-label">Phone:</span><span class="data-value">${val(d.phone)}</span></div>
+      <div class="data-item"><span class="data-label">Date of Birth:</span><span class="data-value">${val(d.dob)}</span></div>
+      <div class="data-item"><span class="data-label">Gender:</span><span class="data-value">${val(d.gender)}</span></div>
+      <div class="data-item"><span class="data-label">Marital Status:</span><span class="data-value">${val(d.maritalStatus)}</span></div>
+      <div class="data-item"><span class="data-label">Nationality:</span><span class="data-value">${val(d.nationality)}</span></div>
+      <div class="data-item"><span class="data-label">Category:</span><span class="data-value">${val(d.category)}</span></div>
+      <div class="data-item"><span class="data-label">Religion:</span><span class="data-value">${val(d.religion)}</span></div>
+      <div class="data-item"><span class="data-label">Ethnicity:</span><span class="data-value">${val(d.ethnicity)}</span></div>
+      <div class="data-item full-width"><span class="data-label">Permanent Address:</span><span class="data-value">${val(d.address)}</span></div>
     </div>
   </div>
 
   <div class="section">
-    <div class="section-title">Family Information</div>
+    <div class="section-title">2. Family Background</div>
     <div class="grid">
-      <div class="data-item"><span class="data-label">Father's Name</span><span class="data-value">${val(d.fatherName)}</span></div>
-      <div class="data-item"><span class="data-label">Father's Contact</span><span class="data-value">${val(d.fatherPhone)}</span></div>
-      <div class="data-item"><span class="data-label">Mother's Name</span><span class="data-value">${val(d.motherName)}</span></div>
-      <div class="data-item"><span class="data-label">Mother's Contact</span><span class="data-value">${val(d.motherPhone)}</span></div>
+      <div class="data-item"><span class="data-label">Father's Name:</span><span class="data-value">${val(d.fatherName)}</span></div>
+      <div class="data-item"><span class="data-label">Father's Contact:</span><span class="data-value">${val(d.fatherPhone)}</span></div>
+      <div class="data-item"><span class="data-label">Mother's Name:</span><span class="data-value">${val(d.motherName)}</span></div>
+      <div class="data-item"><span class="data-label">Mother's Contact:</span><span class="data-value">${val(d.motherPhone)}</span></div>
     </div>
   </div>
 
   <div class="section">
-    <div class="section-title">Educational Background</div>
-    <div style="padding: 0 8px;">
-      ${Array.isArray(d.postgraduates) && d.postgraduates.length > 0 ? d.postgraduates.filter(pg => pg.institute || pg.course).map(pg => `
-        <div class="list-item">
-          <div class="item-header"><span class="item-title">${pg.institute}</span><span class="item-meta">Postgraduate</span></div>
-          <div class="item-subtitle">${pg.course}</div>
-        </div>
-      `).join('') : ''}
-      ${d.undergraduateInstitute ? `<div class="list-item"><div class="item-header"><span class="item-title">${d.undergraduateInstitute}</span><span class="item-meta">Undergraduate</span></div><div class="item-subtitle">${d.ugCourse || 'Bachelors'}</div></div>` : ''}
-      ${d.diplomaInstitute ? `<div class="list-item"><div class="item-header"><span class="item-title">${d.diplomaInstitute}</span><span class="item-meta">Diploma</span></div><div class="item-subtitle">${d.diplomaCourse}</div></div>` : ''}
-    </div>
+    <div class="section-title">3. Education & Qualifications</div>
+    ${Array.isArray(d.postgraduates) && d.postgraduates.length > 0 ? d.postgraduates.filter(pg => pg.institute || pg.course).map(pg => `
+      <div class="list-item">
+        <div class="item-header"><span class="item-title">${pg.course}</span><span class="item-meta">Postgraduate</span></div>
+        <div class="item-subtitle">${pg.institute}</div>
+      </div>
+    `).join('') : ''}
+    ${d.undergraduateInstitute ? `<div class="list-item"><div class="item-header"><span class="item-title">${d.ugCourse || 'Bachelors Degree'}</span><span class="item-meta">Undergraduate</span></div><div class="item-subtitle">${d.undergraduateInstitute}</div></div>` : ''}
+    ${d.diplomaInstitute ? `<div class="list-item"><div class="item-header"><span class="item-title">${d.diplomaCourse}</span><span class="item-meta">Diploma</span></div><div class="item-subtitle">${d.diplomaInstitute}</div></div>` : ''}
     
     <div class="grid" style="margin-top: 5px;">
-      ${d.higherSecondarySchool ? `<div class="data-item"><span class="data-label">Hr. Secondary School</span><span class="data-value">${d.higherSecondarySchool} ${d.hscStream ? `(${d.hscStream})` : ''}</span></div>` : ''}
-      <div class="data-item"><span class="data-label">High School (Class 10)</span><span class="data-value">${val(d.highSchool)}</span></div>
-      <div class="data-item"><span class="data-label">Middle School</span><span class="data-value">${val(d.middleSchool)}</span></div>
-      <div class="data-item"><span class="data-label">Primary School</span><span class="data-value">${val(d.primarySchool)}</span></div>
+      ${d.higherSecondarySchool ? `<div class="data-item"><span class="data-label">Higher Secondary:</span><span class="data-value">${d.higherSecondarySchool} ${d.hscStream ? `(${d.hscStream})` : ''}</span></div>` : ''}
+      <div class="data-item"><span class="data-label">High School (10th):</span><span class="data-value">${val(d.highSchool)}</span></div>
+      <div class="data-item"><span class="data-label">Middle School:</span><span class="data-value">${val(d.middleSchool)}</span></div>
+      <div class="data-item"><span class="data-label">Primary School:</span><span class="data-value">${val(d.primarySchool)}</span></div>
     </div>
   </div>
 
   ${!d.isFresher && Array.isArray(d.experiences) && d.experiences.some(exp => exp.jobTitle) ? `
     <div class="section">
-      <div class="section-title">Professional Experience</div>
-      <div style="padding: 0 8px;">
-        ${d.experiences.filter(exp => exp.jobTitle).map(exp => `
-          <div class="list-item">
-            <div class="item-header">
-              <span class="item-title">${exp.jobTitle}</span>
-              <span class="item-meta">${exp.fromMonth} ${exp.fromYear} — ${exp.toMonth} ${exp.toYear}</span>
-            </div>
-            <div class="data-value" style="font-size: 8.5pt; margin-top: 4px; color: #374151;">${val(exp.description)}</div>
-            ${exp.referenceName ? `<div style="margin-top: 6px; border-top: 1px dashed #d1d5db; padding-top: 4px;"><span class="data-label" style="font-size: 7pt;">Reference:</span> <span class="data-value" style="font-size: 8pt;">${exp.referenceName} (${exp.referencePhone})</span></div>` : ''}
+      <div class="section-title">4. Professional Experience</div>
+      ${d.experiences.filter(exp => exp.jobTitle).map(exp => `
+        <div class="list-item">
+          <div class="item-header">
+            <span class="item-title">${exp.jobTitle}</span>
+            <span class="item-meta">${exp.fromMonth} ${exp.fromYear} — ${exp.toMonth} ${exp.toYear}</span>
           </div>
-        `).join('')}
-      </div>
+          <div class="data-value" style="margin-top: 2px;">${val(exp.description)}</div>
+          ${exp.referenceName ? `<div style="margin-top: 5px; font-size: 8.5pt;"><strong>Reference:</strong> ${exp.referenceName} (${exp.referencePhone})</div>` : ''}
+        </div>
+      `).join('')}
     </div>
   ` : ''}
 
   <div class="section">
-    <div class="section-title">Skills & Extracurriculars</div>
+    <div class="section-title">5. Other Information</div>
     <div class="grid">
       <div class="data-item full-width">
-        <span class="data-label">Languages Known</span>
-        <div class="badges">${Array.isArray(d.languages) && d.languages.filter(l => l.name).length > 0 ? d.languages.filter(l => l.name).map(l => `<span class="badge">${l.name} (${l.proficiency})</span>`).join('') : '<span class="data-value">—</span>'}</div>
+        <span class="data-label">Languages:</span>
+        <div class="badges">${Array.isArray(d.languages) && d.languages.filter(l => l.name).length > 0 ? d.languages.filter(l => l.name).map(l => `<span class="badge">${l.name} (${l.proficiency})</span>`).join(', ') : '—'}</div>
       </div>
-      ${d.sports?.name ? `<div class="data-item"><span class="data-label">Sports</span><span class="data-value">${d.sports.name} ${d.sports.description ? `(${d.sports.description})` : ''}</span></div>` : ''}
-      ${d.music?.name ? `<div class="data-item"><span class="data-label">Music</span><span class="data-value">${d.music.name} ${d.music.description ? `(${d.music.description})` : ''}</span></div>` : ''}
-      ${d.arts?.name ? `<div class="data-item"><span class="data-label">Arts & Performance</span><span class="data-value">${d.arts.name} ${d.arts.description ? `(${d.arts.description})` : ''}</span></div>` : ''}
+      ${d.sports?.name ? `<div class="data-item"><span class="data-label">Sports:</span><span class="data-value">${d.sports.name}</span></div>` : ''}
+      ${d.music?.name ? `<div class="data-item"><span class="data-label">Music:</span><span class="data-value">${d.music.name}</span></div>` : ''}
+      ${d.arts?.name ? `<div class="data-item"><span class="data-label">Arts:</span><span class="data-value">${d.arts.name}</span></div>` : ''}
     </div>
   </div>
 
   <div class="footer">
-    <div><p><strong>Place:</strong> __________________</p><p style="margin-top: 8px;"><strong>Date:</strong> __________________</p></div>
-    <div><div class="signature-line">Candidate Signature</div></div>
+    <div>
+      <p><strong>Place:</strong> ________________________</p>
+      <p style="margin-top: 15px;"><strong>Date:</strong> ________________________</p>
+    </div>
+    <div class="signature-area">
+      <div class="signature-line">CANDIDATE SIGNATURE</div>
+    </div>
   </div>
 
   <div class="system-footer">
-    <span>Printed on ${new Date().toLocaleString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}</span>
-    <span>Generated by <span class="brand-connich">Connich Recruit</span></span>
+    <span>Printed on ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}</span>
+    <span>Powered by <span class="brand">Connich Recruit</span></span>
   </div>
 </div>`;
 
