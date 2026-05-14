@@ -284,13 +284,3 @@ const Home = () => {
 };
 
 export default Home;
->
-               </div>
-            </Link>
-         </div>
-      </div>
-    </div>
-  );
-};
-
-export default Home;
